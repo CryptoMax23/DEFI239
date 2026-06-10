@@ -1,9 +1,11 @@
 import {
   Alert,
+  Box,
   Button,
   Center,
   Container,
   Divider,
+  Flex,
   Space,
   Text,
 } from "@mantine/core";
@@ -23,6 +25,8 @@ import { useAaveData } from "../hooks/useAaveData";
 import AppBar from "../components/AppBar";
 import AddressInput, { isValidENSAddress } from "../components/AddressInput";
 import AddressCard from "../components/AddressCard";
+import MorphoCard from "../components/MorphoCard";
+import ProtocolSidebar, { Protocol } from "../components/ProtocolSidebar";
 import Footer from "../components/Footer";
 
 export default function HomePage() {
@@ -34,8 +38,9 @@ export default function HomePage() {
     isValidAddress ? address : ""
   );
 
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>("aave");
+
   useEffect(() => {
-    // ensure current address is correctly set from url
     if (!address && currentAddress) {
       setCurrentAddress("");
     }
@@ -50,8 +55,24 @@ export default function HomePage() {
     <Container px="xs" style={{ contain: "paint" }}>
       <AppBar />
       <AddressInput />
-      {currentAddress && <AddressCard />}
-      {!currentAddress && <SplashSection />}
+
+      {currentAddress ? (
+        <Flex gap="md" align="flex-start" mt={4}>
+          <ProtocolSidebar
+            selected={selectedProtocol}
+            onSelect={setSelectedProtocol}
+          />
+          <Box style={{ flex: 1, minWidth: 0 }}>
+            {selectedProtocol === "aave" && <AddressCard />}
+            {selectedProtocol === "morpho" && (
+              <MorphoCard address={currentAddress} />
+            )}
+          </Box>
+        </Flex>
+      ) : (
+        <SplashSection />
+      )}
+
       <ExperimentalAlert />
       <Footer />
     </Container>
@@ -113,10 +134,9 @@ export const RandomAddressButton = ({ children }: RandomAddressButtonProps) => {
   const getRandomInt = (min: number, max: number) => {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max - min) + min);
   };
 
-  // Random Aave CDP addresses
   const addresses = [
     "0x50fc9731dace42caa45d166bff404bbb7464bf21",
     "0x7cd0b7ed790f626ef1bd42db63b5ebeb5970c912",
@@ -185,10 +205,8 @@ export const RandomAddressButton = ({ children }: RandomAddressButtonProps) => {
     "0xbbd01f9b63ae317c55b9a6837c51bb2b6394b5d5",
     "0x91cfbce901ebec39e5fcd4416893a5632b6da004",
     "0xb7fb2b774eb5e2dad9c060fb367acbdc7fa7099b",
-    "0x965cc423e416827efc108e64103f7ea"
-  ]
-
-
+    "0x965cc423e416827efc108e64103f7ea",
+  ];
 
   const address = addresses[getRandomInt(0, addresses.length)];
 
@@ -226,7 +244,7 @@ const ExperimentalAlert = () => {
       closeButtonLabel={t`Close alert`}
     >
       <Trans>
-        This Aave debt simulator and liquidation calculator is experimental. Don't make financial decisions
+        This DeFi simulator is experimental. Don't make financial decisions
         based solely on the results of this app.
       </Trans>
     </Alert>
