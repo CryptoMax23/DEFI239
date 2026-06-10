@@ -93,7 +93,13 @@ const AddressCard = ({ }: Props) => {
               color="red"
               variant="outline"
             >
-              {`An error occurred while loading data for this market (${marketName}). Try again later, or select a different market.`}
+              <Text>
+                {`An error occurred while loading data for this market (${marketName}).`}
+              </Text>
+              <Text mt="xs">
+                {data?.fetchError ||
+                  "Try again later, or select a different market."}
+              </Text>
             </Alert>
           </Trans>
         )}
@@ -152,8 +158,13 @@ export const HealthFactorAddressSummary = ({
     (market) => addressData?.[market.id]?.fetchedData?.healthFactor > -1
   ).length;
 
-  const market: AaveMarketDataType = markets.find(mkts => mkts.id === currentMarket);
-  const isEmode: boolean = (addressData?.[currentMarket]?.workingData?.userEmodeCategoryId || 0) !== 0;
+  const market = markets.find((mkts) => mkts.id === currentMarket);
+  const isEmode: boolean =
+    (addressData?.[currentMarket]?.workingData?.userEmodeCategoryId || 0) !== 0;
+  const errorMarkets = markets.filter(
+    (market) => !!addressData?.[market.id]?.fetchError?.length
+  );
+  const hasFetchErrors = errorMarkets.length > 0;
 
   if (isFetching) {
     return (
@@ -181,9 +192,31 @@ export const HealthFactorAddressSummary = ({
             <AbbreviatedEthereumAddress address={currentAddress} />
             {": "}
             <Trans>No Aave positions found.</Trans>
+            <Text size="xs" c="dimmed" mt="xs">
+              <Trans>This simulator currently supports Aave v3 markets only.</Trans>
+            </Text>
           </Text>
         )}
       </Center>
+
+      {hasFetchErrors && (
+        <Center>
+          <Alert
+            mt={15}
+            mb={10}
+            title="Network access issue"
+            color="yellow"
+            variant="light"
+          >
+            <Text size="sm">
+              <Trans>
+                Some Aave network requests failed. Your Alchemy API key may not
+                have the required networks enabled.
+              </Trans>
+            </Text>
+          </Alert>
+        </Center>
+      )}
 
       <Center>
         <Text span size="sm" mt="md" style={{ display: "inline-block" }}>
@@ -1177,7 +1210,7 @@ const UserReserveAssetList = ({ summaryOffset }: UserReserveAssetListProps) => {
             key={`${item.asset.symbol}-RESERVE`}
             assetSymbol={item.asset.symbol}
             assetDetails={item.asset}
-            usageAsCollateralEnabledOnUser={item.usageAsCollateralEnabledOnUser}
+            usageAsCollateralEnabledOnUser={Boolean(item.usageAsCollateralEnabledOnUser)}
             assetType="RESERVE"
             workingQuantity={item.underlyingBalance}
             originalQuantity={originalAsset?.underlyingBalance ?? 0}
@@ -1733,10 +1766,14 @@ type SliderProps = {
   onChange: (value: number) => void;
 };
 
+interface NoUiSliderDiv extends HTMLDivElement {
+  noUiSlider?: any;
+}
+
 const Slider = ({ defaultValue, onChange }: SliderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [value, setValue] = useState(defaultValue);
-  const divRef = useRef<HTMLDivElement>(null);
+  const divRef = useRef<NoUiSliderDiv>(null);
 
   useEffect(() => {
     // initialize the slider
@@ -1758,6 +1795,7 @@ const Slider = ({ defaultValue, onChange }: SliderProps) => {
 
   const createSlider = () => {
     const node = divRef.current;
+    if (!node) return;
     if (node.noUiSlider) {
       node.noUiSlider.destroy();
       node.noUiSlider = null;
@@ -1776,12 +1814,14 @@ const Slider = ({ defaultValue, onChange }: SliderProps) => {
       })
       .on("slide", handleChange);
 
-    node?.noUiSlider.on("start", () => setIsDragging(true));
-    node?.noUiSlider.on("end", () => setIsDragging(false));
+    if (node.noUiSlider) {
+      node.noUiSlider.on("start", () => setIsDragging(true));
+      node.noUiSlider.on("end", () => setIsDragging(false));
+    }
   };
 
-  const handleChange = (val: number[]) => {
-    let rounded = val[0];
+  const handleChange = (values: Array<string | number>) => {
+    let rounded = Number(values[0]);
     if (rounded >= 10) rounded = Math.round(rounded);
     if (rounded >= 100) rounded = Math.round(rounded / 5) * 5;
     if (rounded >= 1000) rounded = Math.round(rounded / 50) * 50;

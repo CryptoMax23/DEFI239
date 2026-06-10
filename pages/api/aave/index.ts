@@ -36,8 +36,10 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).send({ message: "Method not allowed." });
     }
 
-    const { address } = JSON.parse(_req.body);
-    const { marketId } = JSON.parse(_req.body);
+    const parsedBody =
+      typeof _req.body === "string" ? JSON.parse(_req.body || "{}") : _req.body || {};
+    const { address } = parsedBody;
+    const { marketId } = parsedBody;
 
     const market = markets.find(
       (m: AaveMarketDataType) => m.id === marketId
@@ -46,11 +48,44 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(data);
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ statusCode: 500, message: err.message });
+    const errorMessage = getAlchemyFriendlyError(err);
+    res.status(500).json({ statusCode: 500, message: errorMessage });
   }
 };
 
+const getAlchemyFriendlyError = (err: any) => {
+  const alchemyBody = err?.error?.body || err?.body;
+  if (typeof alchemyBody === "string") {
+    try {
+      const parsed = JSON.parse(alchemyBody);
+      if (parsed?.error?.message) {
+        return parsed.error.message;
+      }
+    } catch {
+      // ignore parse failure
+    }
+  }
+
+  if (err?.message?.includes("not enabled for this app")) {
+    return err.message;
+  }
+
+  return err?.message || "Unknown error while fetching Aave data.";
+};
+
 export const getAaveData = async (address: string, market: AaveMarketDataType) => {
+  const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ALCHEMY_API_KEY_HERE") {
+    throw new Error(
+      "Missing or invalid NEXT_PUBLIC_ALCHEMY_API_KEY. Set a valid Alchemy API key in .env.local and restart the app."
+    );
+  }
+  if (!market.api || market.api.includes("undefined")) {
+    throw new Error(
+      "Missing or invalid Aave RPC endpoint. Please check your NEXT_PUBLIC_ALCHEMY_API_KEY and retry."
+    );
+  }
+
   const provider = new ethers.providers.StaticJsonRpcProvider(
     market.api,
     market.chainId
@@ -140,6 +175,7 @@ const aaveUserSummaryToHealthFactor = (
 ) => {
   const getAssetDetailsFromReserveItem = (reserveItem: ComputedUserReserve) => {
     const { reserve } = reserveItem;
+    const reserveAny = reserve as any;
     const details: AssetDetails = {
       symbol: reserve.symbol,
       name: reserve.name,
@@ -156,30 +192,30 @@ const aaveUserSummaryToHealthFactor = (
         reserve.reserveLiquidationThreshold
       ),
       initialPriceInUSD: Number(reserve.priceInUSD),
-      aTokenAddress: reserve.aTokenAddress,
-      stableDebtTokenAddress: reserve.stableDebtTokenAddress,
-      variableDebtTokenAddress: reserve.variableDebtTokenAddress,
+      aTokenAddress: reserveAny.aTokenAddress,
+      stableDebtTokenAddress: reserveAny.stableDebtTokenAddress,
+      variableDebtTokenAddress: reserveAny.variableDebtTokenAddress,
       underlyingAsset: reserve.underlyingAsset,
-      flashLoanEnabled: reserve.flashLoanEnabled,
-      borrowingEnabled: reserve.borrowingEnabled,
-      isFrozen: reserve.isFrozen,
-      isPaused: reserve.isPaused,
-      isActive: reserve.isActive,
+      flashLoanEnabled: reserveAny.flashLoanEnabled,
+      borrowingEnabled: reserveAny.borrowingEnabled,
+      isFrozen: reserveAny.isFrozen,
+      isPaused: reserveAny.isPaused,
+      isActive: reserveAny.isActive,
       supplyAPY: Number(reserve.supplyAPY),
       variableBorrowAPY: Number(reserve.variableBorrowAPY),
-      stableBorrowAPY: Number(reserve.stableBorrowAPY),
+      stableBorrowAPY: Number(reserveAny.stableBorrowAPY),
       supplyAPR: Number(reserve.supplyAPR),
       variableBorrowAPR: Number(reserve.variableBorrowAPR),
-      stableBorrowAPR: Number(reserve.stableBorrowAPR),
+      stableBorrowAPR: Number(reserveAny.stableBorrowAPR),
       availableLiquidity: Number(reserve.availableLiquidity),
       borrowCap: Number(reserve.borrowCap),
       supplyCap: Number(reserve.supplyCap),
-      eModeLtv: Number(reserve.eModeLtv),
-      eModeLiquidationThreshold: Number(reserve.eModeLiquidationThreshold),
-      eModeCategoryId: Number(reserve.eModeCategoryId),
-      eModeLabel: reserve.eModeLabel,
-      borrowableInIsolation: Boolean(reserve.borrowableInIsolation),
-      isSiloedBorrowing: Boolean(reserve.isSiloedBorrowing)
+      eModeLtv: Number(reserveAny.eModeLtv),
+      eModeLiquidationThreshold: Number(reserveAny.eModeLiquidationThreshold),
+      eModeCategoryId: Number(reserveAny.eModeCategoryId),
+      eModeLabel: reserveAny.eModeLabel,
+      borrowableInIsolation: Boolean(reserveAny.borrowableInIsolation),
+      isSiloedBorrowing: Boolean(reserveAny.isSiloedBorrowing)
     };
     return details;
   };
@@ -223,13 +259,14 @@ const aaveUserSummaryToHealthFactor = (
           reserveItem?.totalBorrows && reserveItem.totalBorrows !== "0"
       )
       .map((reserveItem: ComputedUserReserve) => {
+        const reserveItemAny = reserveItem as any;
         const item: BorrowedAssetDataItem = {
           asset: getAssetDetailsFromReserveItem(reserveItem),
-          stableBorrows: Number(reserveItem.stableBorrows),
+          stableBorrows: Number(reserveItemAny.stableBorrows),
           variableBorrows: Number(reserveItem.variableBorrows),
           totalBorrowsUSD: Number(reserveItem.totalBorrowsUSD),
           totalBorrows: Number(reserveItem.totalBorrows),
-          stableBorrowAPY: Number(reserveItem.stableBorrowAPY),
+          stableBorrowAPY: Number(reserveItemAny.stableBorrowAPY),
           totalBorrowsMarketReferenceCurrency: Number(
             reserveItem.totalBorrowsMarketReferenceCurrency
           ),
@@ -282,7 +319,9 @@ const aaveUserSummaryToHealthFactor = (
     hf.workingData as AaveHealthFactorData,
     marketReferenceCurrencyPriceInUSD
   );
-  hf.workingData.liquidationScenario = liquidationScenario;
+  if (hf.workingData) {
+    hf.workingData.liquidationScenario = liquidationScenario;
+  }
   return hf;
 };
 

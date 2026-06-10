@@ -40,7 +40,8 @@ export default function SelectCurrencyDialog({ }: SelectCurrencyDialogProps) {
   const selectedCurrencyData = currencyItems.find(
     (curr) => curr.code === selectedCurrency
   );
-  const selectedFlag = flags[selectedCurrency];
+  const flagsData = flags as Record<string, string>;
+  const selectedFlag = flagsData[selectedCurrency];
 
   const handleClose = () => {
     setSearchText("");
@@ -124,7 +125,7 @@ export default function SelectCurrencyDialog({ }: SelectCurrencyDialogProps) {
 
         <List listStyleType="none">
           {currencies.map((currency: Currency) => {
-            const flag = flags[currency.code];
+            const flag = flagsData[currency.code];
 
             return (
               <List.Item

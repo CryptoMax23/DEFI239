@@ -43,14 +43,16 @@ export const ReserveAssetAPYAccrued = ({
 
     historyItems.forEach(txItem => {
 
-        if (txItem.action === "RedeemUnderlying" || txItem.action === "Withdraw") {
+        if (txItem.action === "RedeemUnderlying" && txItem.amount != null && txItem.reserve?.decimals != null) {
             const amount: number = Number(formatUnits(txItem.amount, txItem.reserve.decimals));
             principalValue += amount;
         }
 
         if (txItem.action === "Supply" || txItem.action === "Deposit") {
-            const amount: number = Number(formatUnits(txItem.amount, txItem.reserve.decimals));
-            principalValue -= amount;
+            if (txItem.amount != null && txItem.reserve?.decimals != null) {
+                const amount: number = Number(formatUnits(txItem.amount, txItem.reserve.decimals));
+                principalValue -= amount;
+            }
         }
 
         if (txItem.action === "LiquidationCall") {
@@ -58,11 +60,11 @@ export const ReserveAssetAPYAccrued = ({
             // isCollateral means the asset is being used to repay a different liquidated asset.
             const isCollateral: boolean = txItem.collateralReserve?.symbol?.toUpperCase() === asset.asset.symbol?.toUpperCase();
 
-            if (isCollateral) {
+            if (isCollateral && txItem.collateralAmount != null && txItem.collateralReserve?.decimals != null) {
                 const amount: number = Number(formatUnits(txItem.collateralAmount, txItem.collateralReserve.decimals));
                 principalValue += amount;
 
-            } else {
+            } else if (txItem.principalAmount != null && txItem.principalReserve?.decimals != null) {
                 const amount: number = Number(formatUnits(txItem.principalAmount, txItem.principalReserve.decimals));
                 principalValue -= amount;
             }
@@ -90,7 +92,9 @@ export const ReserveAssetAPYAccrued = ({
         )
     }
 
-    const oldestTx: TxHistoryItem = historyItems.find(item => item.action === "Supply" || item.action === "Deposit");
+    const oldestTx = historyItems.find(
+        (item) => item.action === "Supply" || item.action === "Deposit"
+    );
     const valueDisplay: string = `${accruedValue?.toFixed(3)} ${asset.asset.symbol} `;
     const dateDisplay: string = oldestTx?.timestamp
         ? ` since ${new Date(oldestTx.timestamp * 1000).toLocaleDateString()}`

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="120" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00C4FF"/>
+      <stop offset="50%" stop-color="#5B7FFF"/>
+      <stop offset="100%" stop-color="#8B3FE8"/>
+    </linearGradient>
+    <linearGradient id="gradArrow" x1="60" y1="60" x2="110" y2="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5B7FFF"/>
+      <stop offset="100%" stop-color="#8B3FE8"/>
+    </linearGradient>
+    <linearGradient id="gradBars" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00C4FF"/>
+      <stop offset="100%" stop-color="#1a90d4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- D shape: left vertical bar -->
+  <rect x="14" y="12" width="9" height="70" rx="2" fill="url(#grad)"/>
+  <!-- D shape: top horizontal bar -->
+  <rect x="14" y="12" width="42" height="9" rx="2" fill="url(#grad)"/>
+  <!-- D shape: bottom horizontal bar -->
+  <rect x="14" y="73" width="42" height="9" rx="2" fill="url(#grad)"/>
+  <!-- D shape: right curve (approximated with rects) -->
+  <rect x="50" y="17" width="9" height="15" rx="2" fill="url(#grad)"/>
+  <rect x="57" y="25" width="9" height="10" rx="5" fill="url(#grad)"/>
+  <rect x="62" y="30" width="8" height="22" rx="2" fill="url(#grad)"/>
+  <rect x="57" y="48" width="9" height="10" rx="5" fill="url(#grad)"/>
+  <rect x="50" y="52" width="9" height="15" rx="2" fill="url(#grad)"/>
+
+  <!-- S curve upper part -->
+  <path d="M 30 45 Q 30 28 48 28 Q 66 28 66 38" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- S curve lower part -->
+  <path d="M 30 56 Q 30 74 50 74 Q 68 74 68 62" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- S middle cross -->
+  <path d="M 66 38 Q 70 45 48 45 Q 28 45 30 56" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+  <!-- Trend arrow -->
+  <line x1="65" y1="55" x2="100" y2="18" stroke="url(#gradArrow)" stroke-width="7" stroke-linecap="round"/>
+  <polygon points="100,18 82,20 94,34" fill="#8B3FE8"/>
+
+  <!-- Bar chart at bottom -->
+  <rect x="20" y="90" width="10" height="18" rx="2" fill="#00C4FF" opacity="0.85"/>
+  <rect x="36" y="82" width="10" height="26" rx="2" fill="#00C4FF" opacity="0.9"/>
+  <rect x="52" y="72" width="10" height="36" rx="2" fill="#00C4FF"/>
+</svg>

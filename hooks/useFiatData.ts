@@ -31,7 +31,7 @@ export function useFiatRates(shouldFetch: boolean = false) {
         const responseData = await response.json();
         const rateData = responseData.data.rates;
         const symbols = Object.keys(rateData);
-        const cleanedRateData = {};
+        const cleanedRateData: Record<string, number> = {};
         symbols
           .filter((symbol) => currencies.find((curr) => curr.code === symbol))
           .forEach(

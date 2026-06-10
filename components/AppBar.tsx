@@ -21,7 +21,6 @@ import {
   Center,
   Indicator,
 } from "@mantine/core";
-import { BiGhost } from "react-icons/bi";
 import {
   getHealthFactorColor,
   getIconNameFromMarket,
@@ -92,17 +91,18 @@ export default function AppBar() {
     <Header height={56} mb={16} pl={0} pr={0}>
       <Container className={classes.inner}>
         <Group
-          spacing={7}
+          spacing={10}
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/")}
         >
-          <BiGhost size={32} />
-          <Title
-            order={3}
-            variant="gradient"
-            gradient={{ from: "#339af0", to: "#339af0", deg: 90 }}
-          >
-            DeFi Simulator
+          <img src="/logo.svg" width="36" height="36" alt="DeFi Strategy logo" />
+          <Title order={3} style={{ lineHeight: 1 }}>
+            <Text span variant="gradient" gradient={{ from: "#00C4FF", to: "#8B3FE8", deg: 90 }} fw={700} fz="xl">
+              DEFI
+            </Text>
+            <Text span fw={700} fz="xl" ml={5} style={{ color: "#fff" }}>
+              STRATEGY
+            </Text>
           </Title>
         </Group>
 
