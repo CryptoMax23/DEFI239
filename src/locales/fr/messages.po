@@ -115,7 +115,7 @@ msgstr "<0>Le total emprunté correspond à la somme de tous les actifs emprunt�
 msgid "<0>Unavailable</0>"
 msgstr "<0>Indisponible</0>"
 
-#: components/AppBar.tsx:155
+#: components/AppBar.tsx:158
 msgid "Aave Markets"
 msgstr "Marchés Aave"
 
@@ -127,7 +127,7 @@ msgstr "Ajouter un actif {0}"
 msgid "Add, remove, and modify asset prices and quantities below to visualize changes to health factor and borrowing power."
 msgstr "Ajoutez, supprimez et modifiez les prix et quantités des actifs ci-dessous pour visualiser les changements sur le facteur de santé et la capacité d'emprunt."
 
-#: components/AddressInput.tsx:77
+#: components/AddressInput.tsx:112
 #: components/BorrowedAssetDetailsDialog.tsx:192
 #: components/ReserveAssetDetailsDialog.tsx:192
 msgid "Address copied to clipboard!"
@@ -146,6 +146,14 @@ msgstr "Appliquer"
 msgid "Available to Borrow:"
 msgstr "Disponible à emprunter :"
 
+#: components/MorphoCard.tsx:226
+msgid "Borrow"
+msgstr "Emprunter"
+
+#: components/MorphoCard.tsx:241
+msgid "Borrow APY"
+msgstr "APY d'emprunt"
+
 #: components/AddAssetDialog.tsx:177
 msgid "Borrow Asset"
 msgstr "Emprunter un actif"
@@ -158,21 +166,24 @@ msgstr "Détails de l'emprunt {0}"
 msgid "Borrowed Assets"
 msgstr "Actifs empruntés"
 
-#: pages/index.tsx:99
+#: pages/index.tsx:120
 msgid "Build from Scratch"
 msgstr "Construire de zéro"
 
-#: pages/index.tsx:226
+#: pages/index.tsx:244
 msgid "Close alert"
 msgstr "Fermer l'alerte"
+
+#: components/MorphoCard.tsx:211
+msgid "Collateral"
+msgstr "Collatéral"
 
 #: components/BorrowedAssetDetailsDialog.tsx:112
 #: components/ReserveAssetDetailsDialog.tsx:112
 msgid "Contract Information"
 msgstr "Informations du contrat"
 
-#: components/AddressInput.tsx:78
-#: components/AddressInput.tsx:87
+#: components/AddressInput.tsx:113
 #: components/BorrowedAssetDetailsDialog.tsx:193
 #: components/BorrowedAssetDetailsDialog.tsx:217
 #: components/ReserveAssetDetailsDialog.tsx:193
@@ -180,7 +191,7 @@ msgstr "Informations du contrat"
 msgid "Copy address to clipboard"
 msgstr "Copier l'adresse dans le presse-papiers"
 
-#: pages/index.tsx:91
+#: pages/index.tsx:112
 msgid "Create a new simulated position in any Aave market:"
 msgstr "Créer une nouvelle position simulée sur n'importe quel marché Aave :"
 
@@ -189,8 +200,8 @@ msgid "Current Loan to Value:"
 msgstr "Ratio prêt/valeur actuel :"
 
 #: pages/_app.tsx:37
-msgid "DeFi Simulator is an unofficial, open source, community-built Aave debt simulator and liquidation calculator."
-msgstr "DeFi Strategy est un simulateur de dette Aave non officiel, open source, créé par la communauté."
+#~ msgid "DeFi Simulator is an unofficial, open source, community-built Aave debt simulator and liquidation calculator."
+#~ msgstr "DeFi Strategy est un simulateur de dette Aave non officiel, open source, créé par la communauté."
 
 #: components/BorrowedAssetDetailsDialog.tsx:69
 #: components/ReserveAssetDetailsDialog.tsx:65
@@ -207,7 +218,7 @@ msgstr "Terminé"
 msgid "Experimental Feature"
 msgstr "Fonctionnalité expérimentale"
 
-#: pages/index.tsx:221
+#: pages/index.tsx:239
 msgid "Experimental!"
 msgstr "Expérimental !"
 
@@ -235,7 +246,7 @@ msgstr "Seuil de liquidation :"
 msgid "market selected."
 msgstr "marché sélectionné."
 
-#: components/AppBar.tsx:140
+#: components/AppBar.tsx:143
 msgid "Markets for"
 msgstr "Marchés pour"
 
@@ -252,7 +263,7 @@ msgstr "Valeur nette des actifs :"
 msgid "No Aave positions found."
 msgstr "Aucune position Aave trouvée."
 
-#: components/AppBar.tsx:147
+#: components/AppBar.tsx:150
 msgid "No address found"
 msgstr "Aucune adresse trouvée"
 
@@ -260,13 +271,21 @@ msgstr "Aucune adresse trouvée"
 msgid "No Liquidation Scenario Available"
 msgstr "Aucun scénario de liquidation disponible"
 
-#: pages/index.tsx:75
+#: components/MorphoCard.tsx:51
+msgid "No Morpho positions found for this address."
+msgstr "Aucune position Morpho trouvée pour cette adresse."
+
+#: pages/index.tsx:96
 msgid "OR"
 msgstr "OU"
 
-#: pages/index.tsx:67
+#: pages/index.tsx:88
 msgid "Paste an address with an Aave debt position in the box above to visualize how changes to borrow/supplied assets affect the position's health factor and borrowing power."
 msgstr "Collez une adresse avec une position de dette Aave dans le champ ci-dessus pour visualiser comment les changements d'actifs empruntés/fournis affectent le facteur de santé et la capacité d'emprunt."
+
+#: components/MorphoCard.tsx:284
+msgid "Price data unavailable — simulation disabled"
+msgstr "Données de prix indisponibles — simulation désactivée"
 
 #: components/AddressCard.tsx:996
 msgid "Price Liquidation Scenario"
@@ -281,13 +300,16 @@ msgstr "Questions ou commentaires ? Veuillez <0>rejoindre le Discord !</0>"
 msgid "Remove {assetSymbol}"
 msgstr "Supprimer {assetSymbol}"
 
+#: components/MorphoCard.tsx:199
+msgid "Reset"
+msgstr "Réinitialiser"
+
 #: components/AddressCard.tsx:1135
 msgid "Reset all simulated values"
 msgstr "Réinitialiser toutes les valeurs simulées"
 
 #: components/AddAssetDialog.tsx:104
 #: components/SelectCurrencyDialog.tsx:93
-#: components/SelectLanguageDialog.tsx:79
 msgid "Reset search query"
 msgstr "Réinitialiser la recherche"
 
@@ -304,16 +326,16 @@ msgid "Search for available currencies"
 msgstr "Rechercher des devises disponibles"
 
 #: components/SelectLanguageDialog.tsx:70
-msgid "Search for available languages"
-msgstr "Rechercher des langues disponibles"
+#~ msgid "Search for available languages"
+#~ msgstr "Rechercher des langues disponibles"
 
 #: components/AddAssetDialog.tsx:131
 msgid "Select {0} ({1}) {2} below to add it as a {3} asset to the debt position."
 msgstr "Sélectionnez {0} ({1}) {2} ci-dessous pour l'ajouter comme actif {3} à la position de dette."
 
 #: components/SelectLanguageDialog.tsx:106
-msgid "Select {0} ({1}) {2} below to translate the app."
-msgstr "Sélectionnez {0} ({1}) {2} ci-dessous pour traduire l'application."
+#~ msgid "Select {0} ({1}) {2} below to translate the app."
+#~ msgstr "Sélectionnez {0} ({1}) {2} ci-dessous pour traduire l'application."
 
 #: components/SelectCurrencyDialog.tsx:120
 msgid "Select {0} ({1}) {2} below. After selecting a currency the app will display asset prices, liquidation scenario, and position summary in the selected currency."
@@ -324,8 +346,12 @@ msgid "Select Currency"
 msgstr "Sélectionner une devise"
 
 #: components/SelectLanguageDialog.tsx:66
-msgid "Select Language"
-msgstr "Sélectionner une langue"
+#~ msgid "Select Language"
+#~ msgstr "Sélectionner une langue"
+
+#: components/MorphoCard.tsx:337
+msgid "Simulate"
+msgstr "Simuler"
 
 #: components/AddressCard.tsx:212
 msgid "Some Aave network requests failed. Your Alchemy API key may not have the required networks enabled."
@@ -334,6 +360,10 @@ msgstr "Certaines requêtes réseau Aave ont échoué. Votre clé API Alchemy n'
 #: components/AddressCard.tsx:350
 msgid "Something happened, we're not able to load the address debt position data right now. Try again later."
 msgstr "Un problème est survenu, nous ne pouvons pas charger les données de la position pour l'instant. Réessayez plus tard."
+
+#: components/MorphoCard.tsx:251
+msgid "Supplied"
+msgstr "Déposé"
 
 #: components/ReserveAssetDetailsDialog.tsx:84
 msgid "Supplied {0} Details"
@@ -369,16 +399,20 @@ msgid "There are no currencies available that match the search query. Reset the 
 msgstr "Aucune devise ne correspond à la recherche. Réinitialisez la recherche pour sélectionner une devise."
 
 #: components/SelectLanguageDialog.tsx:98
-msgid "There are no languages available that match the search query. Reset the search query to select a language."
-msgstr "Aucune langue ne correspond à la recherche. Réinitialisez la recherche pour sélectionner une langue."
+#~ msgid "There are no languages available that match the search query. Reset the search query to select a language."
+#~ msgstr "Aucune langue ne correspond à la recherche. Réinitialisez la recherche pour sélectionner une langue."
 
 #: components/AddressCard.tsx:1194
 msgid "There are no supplied assets for <0/>in the {0} market. Select \"Add Supplied Asset\" to simulate supplied assets for this address."
 msgstr "Il n'y a pas d'actifs fournis pour <0/>dans le marché {0}. Sélectionnez \"Fournir un actif\" pour simuler des actifs fournis pour cette adresse."
 
 #: pages/index.tsx:228
-msgid "This Aave debt simulator and liquidation calculator is experimental. Don't make financial decisions based solely on the results of this app."
-msgstr "Ce simulateur de dette Aave est expérimental. Ne prenez pas de décisions financières basées uniquement sur les résultats de cette application."
+#~ msgid "This Aave debt simulator and liquidation calculator is experimental. Don't make financial decisions based solely on the results of this app."
+#~ msgstr "Ce simulateur de dette Aave est expérimental. Ne prenez pas de décisions financières basées uniquement sur les résultats de cette application."
+
+#: pages/index.tsx:246
+msgid "This DeFi simulator is experimental. Don't make financial decisions based solely on the results of this app."
+msgstr "Ce simulateur DeFi est expérimental. Ne prenez pas de décisions financières basées uniquement sur les résultats de cette application."
 
 #: components/AddressCard.tsx:196
 msgid "This simulator currently supports Aave v3 markets only."
@@ -393,9 +427,8 @@ msgstr "Total emprunté :"
 msgid "Use {assetSymbol} as collateral"
 msgstr "Utiliser {assetSymbol} comme garantie"
 
-#: components/AddressInput.tsx:68
-#: components/AddressInput.tsx:70
-#: pages/index.tsx:206
+#: components/AddressInput.tsx:91
+#: pages/index.tsx:224
 msgid "Use Random Address"
 msgstr "Utiliser une adresse aléatoire"
 
@@ -403,14 +436,14 @@ msgstr "Utiliser une adresse aléatoire"
 msgid "Utilized Borrowing Power:"
 msgstr "Capacité d'emprunt utilisée :"
 
-#: components/AddressInput.tsx:94
+#: components/AddressInput.tsx:126
 msgid "View address on {0}"
 msgstr "Voir l'adresse sur {0}"
 
 #: components/AddressInput.tsx:99
-msgid "Visit address details on Etherscan"
-msgstr "Voir les détails sur Etherscan"
+#~ msgid "Visit address details on Etherscan"
+#~ msgstr "Voir les détails sur Etherscan"
 
-#: pages/index.tsx:79
+#: pages/index.tsx:100
 msgid "Want to go for a quick spin?"
 msgstr "Vous voulez faire un tour rapide ?"

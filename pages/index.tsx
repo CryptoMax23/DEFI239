@@ -20,6 +20,7 @@ import {
 import { NextRouter, useRouter } from "next/router";
 import { ethers } from "ethers";
 import { Trans, t } from "@lingui/macro";
+import { useLingui } from "@lingui/react";
 
 import { useAaveData } from "../hooks/useAaveData";
 import AppBar from "../components/AppBar";
@@ -80,6 +81,7 @@ export default function HomePage() {
 }
 
 const SplashSection = () => {
+  useLingui();
   const router: NextRouter = useRouter();
   return (
     <>
@@ -227,6 +229,7 @@ export const RandomAddressButton = ({ children }: RandomAddressButtonProps) => {
 };
 
 const ExperimentalAlert = () => {
+  useLingui();
   const [shouldDisplay, setShouldDisplay] = useState(true);
 
   if (!shouldDisplay) return null;
