@@ -2,6 +2,7 @@ import * as React from "react";
 import { Button, Menu } from "@mantine/core";
 import { MdLanguage } from "react-icons/md";
 import { FaChevronDown } from "react-icons/fa";
+import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
 
 const languages = [
@@ -12,7 +13,6 @@ const languages = [
 export default function SelectLanguageDialog() {
   const router = useRouter();
   const currentLocale = router.locale || "en";
-  const currentLabel = currentLocale.toUpperCase();
 
   const handleSelect = (code: string) => {
     if (code !== currentLocale) {
@@ -21,11 +21,11 @@ export default function SelectLanguageDialog() {
   };
 
   return (
-    <Menu position="bottom-end" withinPortal>
+    <Menu width={160} position="bottom-end" withinPortal>
       <Menu.Target>
         <Button compact variant="light" mr="sm">
           <MdLanguage style={{ marginRight: "5px" }} />
-          {currentLabel}
+          {currentLocale.toUpperCase()}
           <FaChevronDown size={10} style={{ marginLeft: "5px" }} />
         </Button>
       </Menu.Target>
@@ -34,7 +34,13 @@ export default function SelectLanguageDialog() {
           <Menu.Item
             key={lang.code}
             onClick={() => handleSelect(lang.code)}
-            fw={currentLocale === lang.code ? 700 : 400}
+            icon={
+              currentLocale === lang.code ? (
+                <BsCheckLg size={12} />
+              ) : (
+                <span style={{ width: 12, display: "inline-block" }} />
+              )
+            }
           >
             {lang.label}
           </Menu.Item>

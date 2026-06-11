@@ -62,6 +62,7 @@ const AddressInput = ({ }: Props) => {
       placeholder="0x...1234 or bobloblaw.eth"
       onChange={(event) => setInputAddress(event.target.value?.trim())}
       inputWrapperOrder={["label", "error", "input", "description"]}
+      rightSectionWidth={120}
       rightSection={
         <Center>
           <RandomAddressButton>
