@@ -6,23 +6,24 @@ import {
   ColorScheme,
   MantineThemeOverride,
 } from "@mantine/core";
+import createCache from "@emotion/cache";
 import { Notifications } from "@mantine/notifications";
-
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { t } from "@lingui/macro";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-
 // Styles specific to noUI slider
 import "nouislider/dist/nouislider.css";
 import "../css/slider.css";
-
 import languages from "../src/languages/index.json";
-
 // Import compiled message catalogs
 import enMessages from "../src/locales/en/messages";
 import frMessages from "../src/locales/fr/messages";
+
+// speedy:false prevents insertRule() failures for client-side-only Mantine components
+// (Grid, Checkbox, etc. that only render after async data loads)
+const emotionCache = createCache({ key: "mantine", speedy: false });
 
 const allMessages: Record<string, any> = {
   en: enMessages.messages,
@@ -76,7 +77,7 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
         })}
       </Head>
       <I18nProvider i18n={i18n}>
-        <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+        <MantineProvider emotionCache={emotionCache} theme={theme} withGlobalStyles withNormalizeCSS>
           <Component {...pageProps} />
           <Notifications />
         </MantineProvider>
