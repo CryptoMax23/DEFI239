@@ -11,6 +11,8 @@ import { Notifications } from "@mantine/notifications";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { t } from "@lingui/macro";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 // Styles specific to noUI slider
 import "nouislider/dist/nouislider.css";
@@ -18,11 +20,31 @@ import "../css/slider.css";
 
 import languages from "../src/languages/index.json";
 
-i18n.load("en", {});
+// Import compiled message catalogs
+import enMessages from "../src/locales/en/messages";
+import frMessages from "../src/locales/fr/messages";
+
+const allMessages: Record<string, any> = {
+  en: enMessages.messages,
+  fr: frMessages.messages,
+};
+
+// Pre-load all catalogs so i18n.activate() can switch instantly
+Object.entries(allMessages).forEach(([locale, messages]) => {
+  i18n.load(locale, messages);
+});
 i18n.activate("en");
 
 export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component, pageProps } = props;
+  const router = useRouter();
+  const locale = router.locale || "en";
+
+  useEffect(() => {
+    if (allMessages[locale]) {
+      i18n.activate(locale);
+    }
+  }, [locale]);
 
   return (
     <>
@@ -34,7 +56,7 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
         />
         <meta
           name="description"
-          content={t`DeFi Strategy — Simulate. Optimize. Grow. An Aave debt simulator and liquidation calculator.`}
+          content="DeFi Strategy — Simulate. Optimize. Grow."
         />
         <Script
           strategy="afterInteractive"
@@ -48,7 +70,7 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
               key={language.code}
               rel="alternate"
               hrefLang={language.code}
-              href={`https://defisim.xyz/${language.code}`}
+              href={`https://defi239.vercel.app/${language.code}`}
             />
           );
         })}

@@ -3,17 +3,7 @@
 module.exports = {
   locales: [
     "en",
-    "es",
     "fr",
-    "de",
-    "it",
-    "pt",
-    "ru",
-    "zh-Hans",
-    "ja",
-    "ko",
-    "tr",
-    "ar",
   ],
   catalogs: [
     {

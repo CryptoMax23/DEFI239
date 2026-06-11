@@ -1,0 +1,416 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-10 01:42+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ja\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: components/AddressCard.tsx:187
+msgid "{0, plural, one {market} other {markets}}"
+msgstr ""
+
+#: components/AddressCard.tsx:185
+msgid "{0, plural, one {position} other {positions}}"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:116
+msgid "{0} Debt Token Contract"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:57
+#: components/BorrowedAssetDetailsDialog.tsx:62
+#: components/BorrowedAssetDetailsDialog.tsx:148
+#: components/BorrowedAssetDetailsDialog.tsx:154
+#: components/ReserveAssetDetailsDialog.tsx:53
+#: components/ReserveAssetDetailsDialog.tsx:58
+#: components/ReserveAssetDetailsDialog.tsx:148
+#: components/ReserveAssetDetailsDialog.tsx:154
+msgid "{0} Details"
+msgstr ""
+
+#: components/AddressCard.tsx:1068
+msgid "{0} liquidation price"
+msgstr ""
+
+#: components/AddressCard.tsx:1746
+msgid "{assetSymbol} Price ({selectedCurrency})"
+msgstr ""
+
+#: components/AddressCard.tsx:1610
+msgid "{assetSymbol} Quantity"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:257
+#: components/ReserveAssetDetailsDialog.tsx:257
+msgid "{title}"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:261
+#: components/ReserveAssetDetailsDialog.tsx:261
+msgid "<0>{description}</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:225
+msgid "<0><1/>E-mode is enabled by user.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:87
+msgid "<0><1>An error occurred while loading data for this market ({marketName}).</1><2>{0}</2></0>"
+msgstr ""
+
+#: components/AddressCard.tsx:536
+msgid "<0>Available to Borrow represents the total borrowing power available to the position, expressed in the selected fiat currency.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:914
+msgid "<0>Borrowing Power represents the value of borrowed assets relative to the total value available to borrow. This value applies to the overall position.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:871
+msgid "<0>Current Loan to Value refers to the overall value of all borrowed assets relative to the overall value of the supplied assets. This value applies to the overall position.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:795
+msgid "<0>Liquidation Threshold refers to the loan to value percentage that makes the position subject to liquidation. This value applies to the overall position.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:832
+msgid "<0>Maximum Loan to Value refers to the loan to value percentage where new loans may not be initiated. This value applies to the overall position.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:603
+msgid "<0>Net Asset Value represents the sum of the supplied asset value subtracted by the sum of the borrowed asset value, expressed in the selected fiat currency.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:572
+msgid "<0>Supplied Asset Value represents the sum of the supplied assets, expressed in the selected fiat currency.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:459
+msgid "<0>The position is subject to liquidation when the Health Factor drops below 1.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:1025
+msgid "<0>The price liquidation scenario represents supplied asset prices slightly greater than the prices that could subject the position to liquidation. Stable assets are not included in this scenario and are assumed to maintain their present value. Many factors affect liquidation. This scenario is only one example for reference. Many different scenarios can trigger liquidation.<1>Read more here</1>.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:107
+msgid "<0>This debt position has Isolation Mode enabled, but DeFi Simulator does not yet support positions with Isolation mode enabled. We hope to add support for Isolation Mode soon.</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:505
+msgid "<0>Total Borrowed refers to the sum of all assets borrowed, expressed in the selected fiat currency.</0>"
+msgstr ""
+
+#: components/BorrowedAssetAPYAccrued.tsx:81
+#: components/ReserveAssetAPYAccrued.tsx:91
+msgid "<0>Unavailable</0>"
+msgstr ""
+
+#: components/AppBar.tsx:155
+msgid "Aave Markets"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:90
+msgid "Add {0} Asset"
+msgstr ""
+
+#: components/AddressCard.tsx:231
+msgid "Add, remove, and modify asset prices and quantities below to visualize changes to health factor and borrowing power."
+msgstr ""
+
+#: components/AddressInput.tsx:77
+#: components/BorrowedAssetDetailsDialog.tsx:192
+#: components/ReserveAssetDetailsDialog.tsx:192
+msgid "Address copied to clipboard!"
+msgstr ""
+
+#: components/AddressCard.tsx:759
+msgid "Advanced Position Details"
+msgstr ""
+
+#: components/AddressCard.tsx:1097
+msgid "Apply"
+msgstr ""
+
+#: components/AddressCard.tsx:272
+#: components/AddressCard.tsx:532
+msgid "Available to Borrow:"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:177
+msgid "Borrow Asset"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:84
+msgid "Borrowed {0} Details"
+msgstr ""
+
+#: components/AddressCard.tsx:1274
+msgid "Borrowed Assets"
+msgstr ""
+
+#: pages/index.tsx:99
+msgid "Build from Scratch"
+msgstr ""
+
+#: pages/index.tsx:226
+msgid "Close alert"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:112
+#: components/ReserveAssetDetailsDialog.tsx:112
+msgid "Contract Information"
+msgstr ""
+
+#: components/AddressInput.tsx:78
+#: components/AddressInput.tsx:87
+#: components/BorrowedAssetDetailsDialog.tsx:193
+#: components/BorrowedAssetDetailsDialog.tsx:217
+#: components/ReserveAssetDetailsDialog.tsx:193
+#: components/ReserveAssetDetailsDialog.tsx:217
+msgid "Copy address to clipboard"
+msgstr ""
+
+#: pages/index.tsx:91
+msgid "Create a new simulated position in any Aave market:"
+msgstr ""
+
+#: components/AddressCard.tsx:867
+msgid "Current Loan to Value:"
+msgstr ""
+
+#: pages/_app.tsx:37
+msgid "DeFi Simulator is an unofficial, open source, community-built Aave debt simulator and liquidation calculator."
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:69
+#: components/ReserveAssetDetailsDialog.tsx:65
+msgid "Details"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:143
+#: components/ReserveAssetDetailsDialog.tsx:143
+msgid "Done"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:99
+#: components/ReserveAssetDetailsDialog.tsx:99
+msgid "Experimental Feature"
+msgstr ""
+
+#: pages/index.tsx:221
+msgid "Experimental!"
+msgstr ""
+
+#: components/AddressCard.tsx:184
+msgid "Found"
+msgstr ""
+
+#: components/AddressCard.tsx:455
+msgid "Health Factor"
+msgstr ""
+
+#: components/AddressCard.tsx:186
+msgid "in"
+msgstr ""
+
+#: components/Footer.tsx:121
+msgid "is an unofficial, open source, community-built Aave debt simulator and liquidation calculator."
+msgstr ""
+
+#: components/AddressCard.tsx:791
+msgid "Liquidation Threshold:"
+msgstr ""
+
+#: components/AddressCard.tsx:224
+msgid "market selected."
+msgstr ""
+
+#: components/AppBar.tsx:140
+msgid "Markets for"
+msgstr ""
+
+#: components/AddressCard.tsx:828
+msgid "Max Loan to Value:"
+msgstr ""
+
+#: components/AddressCard.tsx:286
+#: components/AddressCard.tsx:599
+msgid "Net Asset Value:"
+msgstr ""
+
+#: components/AddressCard.tsx:194
+msgid "No Aave positions found."
+msgstr ""
+
+#: components/AppBar.tsx:147
+msgid "No address found"
+msgstr ""
+
+#: components/AddressCard.tsx:969
+msgid "No Liquidation Scenario Available"
+msgstr ""
+
+#: pages/index.tsx:75
+msgid "OR"
+msgstr ""
+
+#: pages/index.tsx:67
+msgid "Paste an address with an Aave debt position in the box above to visualize how changes to borrow/supplied assets affect the position's health factor and borrowing power."
+msgstr ""
+
+#: components/AddressCard.tsx:996
+msgid "Price Liquidation Scenario"
+msgstr ""
+
+#: components/Footer.tsx:131
+msgid "Questions or comments? Please <0>join the Discord!</0>"
+msgstr ""
+
+#: components/AddressCard.tsx:1410
+#: components/AddressCard.tsx:1416
+msgid "Remove {assetSymbol}"
+msgstr ""
+
+#: components/AddressCard.tsx:1135
+msgid "Reset all simulated values"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:104
+#: components/SelectCurrencyDialog.tsx:93
+#: components/SelectLanguageDialog.tsx:79
+msgid "Reset search query"
+msgstr ""
+
+#: components/AddressCard.tsx:1642
+msgid "Reset to Original Value ({0})"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:94
+msgid "Search for {0} Assets"
+msgstr ""
+
+#: components/SelectCurrencyDialog.tsx:84
+msgid "Search for available currencies"
+msgstr ""
+
+#: components/SelectLanguageDialog.tsx:70
+msgid "Search for available languages"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:131
+msgid "Select {0} ({1}) {2} below to add it as a {3} asset to the debt position."
+msgstr ""
+
+#: components/SelectLanguageDialog.tsx:106
+msgid "Select {0} ({1}) {2} below to translate the app."
+msgstr ""
+
+#: components/SelectCurrencyDialog.tsx:120
+msgid "Select {0} ({1}) {2} below. After selecting a currency the app will display asset prices, liquidation scenario, and position summary in the selected currency."
+msgstr ""
+
+#: components/SelectCurrencyDialog.tsx:80
+msgid "Select Currency"
+msgstr ""
+
+#: components/SelectLanguageDialog.tsx:66
+msgid "Select Language"
+msgstr ""
+
+#: components/AddressCard.tsx:212
+msgid "Some Aave network requests failed. Your Alchemy API key may not have the required networks enabled."
+msgstr ""
+
+#: components/AddressCard.tsx:350
+msgid "Something happened, we're not able to load the address debt position data right now. Try again later."
+msgstr ""
+
+#: components/ReserveAssetDetailsDialog.tsx:84
+msgid "Supplied {0} Details"
+msgstr ""
+
+#: components/AddressCard.tsx:279
+#: components/AddressCard.tsx:568
+msgid "Supplied Asset Value:"
+msgstr ""
+
+#: components/AddressCard.tsx:1187
+msgid "Supplied Assets"
+msgstr ""
+
+#: components/AddAssetDialog.tsx:177
+msgid "Supply Asset"
+msgstr ""
+
+#: components/BorrowedAssetDetailsDialog.tsx:117
+msgid "The {0} Debt Token Contract refers to the Aave debt token contract that corresponds to the underlying borrowed asset."
+msgstr ""
+
+#: components/AddAssetDialog.tsx:123
+msgid "There are no assets that match the search query. Reset the search query to select an asset."
+msgstr ""
+
+#: components/AddressCard.tsx:1281
+msgid "There are no borrowed assets for <0/>in the {0} market. Select \"Add Borrow Asset\" to simulate borrowed assets for this address."
+msgstr ""
+
+#: components/SelectCurrencyDialog.tsx:112
+msgid "There are no currencies available that match the search query. Reset the search query to select a currency."
+msgstr ""
+
+#: components/SelectLanguageDialog.tsx:98
+msgid "There are no languages available that match the search query. Reset the search query to select a language."
+msgstr ""
+
+#: components/AddressCard.tsx:1194
+msgid "There are no supplied assets for <0/>in the {0} market. Select \"Add Supplied Asset\" to simulate supplied assets for this address."
+msgstr ""
+
+#: pages/index.tsx:228
+msgid "This Aave debt simulator and liquidation calculator is experimental. Don't make financial decisions based solely on the results of this app."
+msgstr ""
+
+#: components/AddressCard.tsx:196
+msgid "This simulator currently supports Aave v3 markets only."
+msgstr ""
+
+#: components/AddressCard.tsx:265
+#: components/AddressCard.tsx:501
+msgid "Total Borrowed:"
+msgstr ""
+
+#: components/AddressCard.tsx:1546
+msgid "Use {assetSymbol} as collateral"
+msgstr ""
+
+#: components/AddressInput.tsx:68
+#: components/AddressInput.tsx:70
+#: pages/index.tsx:206
+msgid "Use Random Address"
+msgstr ""
+
+#: components/AddressCard.tsx:910
+msgid "Utilized Borrowing Power:"
+msgstr ""
+
+#: components/AddressInput.tsx:94
+msgid "View address on {0}"
+msgstr ""
+
+#: components/AddressInput.tsx:99
+msgid "Visit address details on Etherscan"
+msgstr ""
+
+#: pages/index.tsx:79
+msgid "Want to go for a quick spin?"
+msgstr ""

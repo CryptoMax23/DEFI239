@@ -29,6 +29,7 @@ import {
 } from "../hooks/useAaveData";
 import { AbbreviatedEthereumAddress } from "./AddressCard";
 import { BsCheckLg } from "react-icons/bs";
+import SelectLanguageDialog from "./SelectLanguageDialog";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -106,6 +107,8 @@ export default function AppBar() {
           </Title>
         </Group>
 
+        <Group spacing="xs" noWrap>
+        <SelectLanguageDialog />
         <Indicator
           inline
           label={`${numMarketsWithHF}`}
@@ -216,6 +219,7 @@ export default function AppBar() {
             </Menu.Dropdown>
           </Menu>
         </Indicator>
+        </Group>
       </Container>
     </Header>
   );
