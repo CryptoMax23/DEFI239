@@ -21,7 +21,7 @@ export default function SelectLanguageDialog() {
   };
 
   return (
-    <Menu width={160} position="bottom-end" withinPortal>
+    <Menu width={160} position="bottom-end">
       <Menu.Target>
         <Button compact variant="light" mr="sm">
           <MdLanguage style={{ marginRight: "5px" }} />
