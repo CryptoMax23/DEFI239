@@ -66,7 +66,9 @@ const AddressInput = ({}: Props) => {
     if (ethers.utils.isAddress(address) || isValidENSAddress(address)) {
       const query = { ...router?.query };
       query.address = address.trim();
-      router.push({ pathname: router.pathname, query });
+      router.push({ pathname: router.pathname, query }, undefined, {
+        locale: router.locale,
+      });
     }
   };
 
@@ -83,12 +85,24 @@ const AddressInput = ({}: Props) => {
       placeholder="0x...1234 or bobloblaw.eth"
       onChange={(event) => setInputAddress(event.target.value?.trim())}
       inputWrapperOrder={["label", "error", "input", "description"]}
-      rightSectionWidth={100}
+      rightSectionWidth={110}
       rightSection={
-        <Group spacing={4} noWrap pr={6}>
+        <Group spacing={4} noWrap pr={4}>
           <Tooltip label={t`Use Random Address`} position="top" withArrow>
-            <ActionIcon onClick={() => router.push(`?address=${randomAddress}`)}>
-              <GiDiceSixFacesFive size={16} />
+            <ActionIcon
+              size="sm"
+              onClick={() =>
+                router.push(
+                  {
+                    pathname: router.pathname,
+                    query: { ...router.query, address: randomAddress },
+                  },
+                  undefined,
+                  { locale: router.locale }
+                )
+              }
+            >
+              <GiDiceSixFacesFive size={15} />
             </ActionIcon>
           </Tooltip>
 
@@ -103,8 +117,8 @@ const AddressInput = ({}: Props) => {
             position="top"
             withArrow
           >
-            <ActionIcon onClick={handleCopy}>
-              <FaCopy size={16} />
+            <ActionIcon size="sm" onClick={handleCopy}>
+              <FaCopy size={14} />
             </ActionIcon>
           </Tooltip>
 
@@ -114,12 +128,13 @@ const AddressInput = ({}: Props) => {
             withArrow
           >
             <ActionIcon
+              size="sm"
               component="a"
               href={market?.explorer.replace("{{ADDRESS}}", inputAddress)}
               target="_blank"
               rel="noreferrer"
             >
-              <FaExternalLinkAlt size={16} />
+              <FaExternalLinkAlt size={14} />
             </ActionIcon>
           </Tooltip>
         </Group>
