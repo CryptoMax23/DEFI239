@@ -34,6 +34,9 @@ yarn-error.log*
 .vercel
 *.tsbuildinfo
 
+# cloudflare / opennext
+.open-next
+
 # storybook
 storybook-static
 

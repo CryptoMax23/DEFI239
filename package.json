@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "npm run sync_and_purge && next build",
     "vercel-build": "lingui compile && next build",
+    "pages:build": "lingui compile && next build && npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion",
+    "deploy": "npm run pages:build && wrangler deploy",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -48,7 +50,7 @@
     "dayjs": "^1.11.7",
     "ethers": "^5.7.2",
     "jest-fetch-mock": "^3.0.3",
-    "next": "14.0.4",
+    "next": "14.2",
     "nouislider": "^15.7.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -62,6 +64,7 @@
     "@lingui/cli": "^4.3.0",
     "@lingui/macro": "^4.3.0",
     "@next/eslint-plugin-next": "^12.3.4",
+    "@opennextjs/cloudflare": "^1.19.11",
     "@storybook/react": "^7.0.2",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -93,6 +96,8 @@
     "storybook-addon-turbo-build": "^1.1.0",
     "storybook-dark-mode": "^1.1.2",
     "ts-jest": "^27.1.5",
-    "typescript": "4.8.4"
+    "typescript": "4.8.4",
+    "vercel": "^54.13.0",
+    "wrangler": "^4.100.0"
   }
 }
