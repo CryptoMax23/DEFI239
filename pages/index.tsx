@@ -55,25 +55,25 @@ export default function HomePage() {
   return (
     <Container px="xs" style={{ contain: "paint" }}>
       <AppBar />
-      <AddressInput />
-
-      {currentAddress ? (
-        <Flex gap="md" align="flex-start" mt={4}>
-          <ProtocolSidebar
-            selected={selectedProtocol}
-            onSelect={setSelectedProtocol}
-          />
-          <Box style={{ flex: 1, minWidth: 0 }}>
-            {selectedProtocol === "aave" && <AddressCard />}
-            {selectedProtocol === "morpho" && (
-              <MorphoCard address={currentAddress} />
-            )}
-          </Box>
-        </Flex>
-      ) : (
-        <SplashSection />
-      )}
-
+      <Flex gap="md" align="flex-start">
+        <ProtocolSidebar
+          selected={selectedProtocol}
+          onSelect={setSelectedProtocol}
+        />
+        <Box style={{ flex: 1, minWidth: 0 }}>
+          <AddressInput />
+          {currentAddress ? (
+            <>
+              {selectedProtocol === "aave" && <AddressCard />}
+              {selectedProtocol === "morpho" && (
+                <MorphoCard address={currentAddress} />
+              )}
+            </>
+          ) : (
+            <SplashSection />
+          )}
+        </Box>
+      </Flex>
       <ExperimentalAlert />
       <Footer />
     </Container>
