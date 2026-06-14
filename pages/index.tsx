@@ -27,6 +27,7 @@ import AppBar from "../components/AppBar";
 import AddressInput, { isValidENSAddress } from "../components/AddressInput";
 import AddressCard from "../components/AddressCard";
 import MorphoCard from "../components/MorphoCard";
+import CompoundCard from "../components/CompoundCard";
 import ProtocolSidebar, { Protocol } from "../components/ProtocolSidebar";
 import Footer from "../components/Footer";
 
@@ -67,6 +68,9 @@ export default function HomePage() {
               {selectedProtocol === "aave" && <AddressCard />}
               {selectedProtocol === "morpho" && (
                 <MorphoCard address={currentAddress} />
+              )}
+              {selectedProtocol === "compound" && (
+                <CompoundCard address={currentAddress} />
               )}
             </>
           ) : (
