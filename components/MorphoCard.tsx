@@ -69,8 +69,21 @@ export default function MorphoCard({ address }: Props) {
     (p) => p.borrowTokens === 0 && p.supplyTokens > 0
   );
 
-  const ethereumPositions = positions.filter((p) => p.chainId === 1);
-  const basePositions = positions.filter((p) => p.chainId === 8453);
+  // Group positions by chain dynamically (supports any chain)
+  const chainGroups = positions.reduce<Record<string, { chainId: number; positions: MorphoPosition[] }>>(
+    (acc, p) => {
+      if (!acc[p.chainName]) acc[p.chainName] = { chainId: p.chainId, positions: [] };
+      acc[p.chainName].positions.push(p);
+      return acc;
+    },
+    {}
+  );
+  const sortedChains = Object.keys(chainGroups).sort((a, b) => {
+    // Ethereum first, then alphabetical
+    if (a === "Ethereum") return -1;
+    if (b === "Ethereum") return 1;
+    return a.localeCompare(b);
+  });
 
   const renderChainGroup = (chainPositions: MorphoPosition[], chainName: string) => {
     if (chainPositions.length === 0) return null;
@@ -122,8 +135,9 @@ export default function MorphoCard({ address }: Props) {
         </Paper>
       )}
 
-      {renderChainGroup(ethereumPositions, "Ethereum")}
-      {renderChainGroup(basePositions, "Base")}
+      {sortedChains.map((chainName) =>
+        renderChainGroup(chainGroups[chainName].positions, chainName)
+      )}
     </Box>
   );
 }
