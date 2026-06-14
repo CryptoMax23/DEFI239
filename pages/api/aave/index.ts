@@ -88,13 +88,17 @@ export const getAaveData = async (address: string, market: AaveMarketDataType) =
   };
   const poolDataProviderContract = new UiPoolDataProvider(UiPoolDataCtx);
 
-  const UiIncentiveDataCtx: UiIncentiveDataProviderContext = {
-    uiIncentiveDataProviderAddress: market.addresses.UI_INCENTIVE_DATA_PROVIDER,
-    provider,
-    chainId: market.chainId,
-  };
+  const hasIncentives = !!market.addresses.UI_INCENTIVE_DATA_PROVIDER;
 
-  const incentiveDataProviderContract = new UiIncentiveDataProvider(UiIncentiveDataCtx);
+  let incentiveDataProviderContract: UiIncentiveDataProvider | null = null;
+  if (hasIncentives) {
+    const UiIncentiveDataCtx: UiIncentiveDataProviderContext = {
+      uiIncentiveDataProviderAddress: market.addresses.UI_INCENTIVE_DATA_PROVIDER,
+      provider,
+      chainId: market.chainId,
+    };
+    incentiveDataProviderContract = new UiIncentiveDataProvider(UiIncentiveDataCtx);
+  }
 
   const user = (await getResolvedAddress(address)) || "0x87cCC67f0c1b67745989542152DD4acff3841CD6";
 
@@ -106,13 +110,17 @@ export const getAaveData = async (address: string, market: AaveMarketDataType) =
       lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
       user
     }),
-    incentiveDataProviderContract.getReservesIncentivesDataHumanized({
-      lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER
-    }),
-    incentiveDataProviderContract.getUserReservesIncentivesDataHumanized({
-      lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
-      user
-    })
+    incentiveDataProviderContract
+      ? incentiveDataProviderContract.getReservesIncentivesDataHumanized({
+          lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER
+        })
+      : Promise.resolve([]),
+    incentiveDataProviderContract
+      ? incentiveDataProviderContract.getUserReservesIncentivesDataHumanized({
+          lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
+          user
+        })
+      : Promise.resolve([]),
   ]);
 
   const reservesArray = reserves.reservesData;
@@ -121,28 +129,48 @@ export const getAaveData = async (address: string, market: AaveMarketDataType) =
 
   const currentTimestamp = dayjs().unix();
 
-  const formattedPoolReserves = formatReservesAndIncentives({
-    reserves: reservesArray,
-    currentTimestamp,
-    marketReferenceCurrencyDecimals:
-      baseCurrencyData.marketReferenceCurrencyDecimals,
-    marketReferencePriceInUsd:
-      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-    reserveIncentives
-  });
+  const formattedPoolReserves = hasIncentives
+    ? formatReservesAndIncentives({
+        reserves: reservesArray,
+        currentTimestamp,
+        marketReferenceCurrencyDecimals:
+          baseCurrencyData.marketReferenceCurrencyDecimals,
+        marketReferencePriceInUsd:
+          baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+        reserveIncentives: reserveIncentives as any
+      })
+    : formatReserves({
+        reserves: reservesArray,
+        currentTimestamp,
+        marketReferenceCurrencyDecimals:
+          baseCurrencyData.marketReferenceCurrencyDecimals,
+        marketReferencePriceInUsd:
+          baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+      });
 
-  const userSummary = formatUserSummaryAndIncentives({
-    currentTimestamp,
-    marketReferencePriceInUsd:
-      baseCurrencyData.marketReferenceCurrencyPriceInUsd,
-    marketReferenceCurrencyDecimals:
-      baseCurrencyData.marketReferenceCurrencyDecimals,
-    userReserves: userReservesArray,
-    formattedReserves: formattedPoolReserves,
-    userEmodeCategoryId: userReserves.userEmodeCategoryId,
-    reserveIncentives,
-    userIncentives
-  });
+  const userSummary = hasIncentives
+    ? formatUserSummaryAndIncentives({
+        currentTimestamp,
+        marketReferencePriceInUsd:
+          baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+        marketReferenceCurrencyDecimals:
+          baseCurrencyData.marketReferenceCurrencyDecimals,
+        userReserves: userReservesArray,
+        formattedReserves: formattedPoolReserves,
+        userEmodeCategoryId: userReserves.userEmodeCategoryId,
+        reserveIncentives: reserveIncentives as any,
+        userIncentives: userIncentives as any
+      })
+    : formatUserSummary({
+        currentTimestamp,
+        marketReferencePriceInUsd:
+          baseCurrencyData.marketReferenceCurrencyPriceInUsd,
+        marketReferenceCurrencyDecimals:
+          baseCurrencyData.marketReferenceCurrencyDecimals,
+        userReserves: userReservesArray,
+        formattedReserves: formattedPoolReserves,
+        userEmodeCategoryId: userReserves.userEmodeCategoryId,
+      });
 
   const hf: HealthFactorData = aaveUserSummaryToHealthFactor(
     userSummary,

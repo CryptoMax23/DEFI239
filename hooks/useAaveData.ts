@@ -345,7 +345,7 @@ export const markets: AaveMarketDataType[] = [
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER: "0x02C3eA4e34C0cBd694D2adFa2c690EECbC1793eE",
       UI_POOL_DATA_PROVIDER:         "0xF028c2F4b19898718fD0F77b9b881CbfdAa5e8Bb",
-      UI_INCENTIVE_DATA_PROVIDER:    "0xD2a2a353D28e4833FAFfc882f6649c9815979E26",
+      UI_INCENTIVE_DATA_PROVIDER:    "",
     },
     explorer: "https://etherscan.io/address/{{ADDRESS}}",
     explorerName: "Etherscan",
