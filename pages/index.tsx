@@ -36,11 +36,16 @@ export default function HomePage() {
   const address = router?.query?.address as string;
   const isValidAddress: boolean =
     ethers.utils.isAddress(address) || isValidENSAddress(address);
-  const { currentAddress, setCurrentAddress } = useAaveData(
+  const { currentAddress, setCurrentAddress, setCurrentMarket } = useAaveData(
     isValidAddress ? address : ""
   );
 
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>("aave");
+
+  const handleProtocolSelect = (p: Protocol) => {
+    setSelectedProtocol(p);
+    if (p === "spark") setCurrentMarket("SPARK_ETHEREUM");
+  };
 
   useEffect(() => {
     if (!address && currentAddress) {
@@ -59,7 +64,7 @@ export default function HomePage() {
       <Flex gap="md" align="flex-start">
         <ProtocolSidebar
           selected={selectedProtocol}
-          onSelect={setSelectedProtocol}
+          onSelect={handleProtocolSelect}
         />
         <Box style={{ flex: 1, minWidth: 0 }}>
           <AddressInput />
@@ -72,6 +77,7 @@ export default function HomePage() {
               {selectedProtocol === "compound" && (
                 <CompoundCard address={currentAddress} />
               )}
+              {selectedProtocol === "spark" && <AddressCard />}
             </>
           ) : (
             <SplashSection />

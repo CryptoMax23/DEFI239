@@ -1,6 +1,6 @@
 import { Box, Stack, Text, Tooltip, UnstyledButton, createStyles } from "@mantine/core";
 
-export type Protocol = "aave" | "morpho" | "compound";
+export type Protocol = "aave" | "morpho" | "compound" | "spark";
 
 type Props = {
   selected: Protocol;
@@ -64,6 +64,11 @@ const PROTOCOLS: { id: Protocol; label: string; icon: string }[] = [
     id: "compound",
     label: "Compound",
     icon: "/icons/tokens/comp.svg",
+  },
+  {
+    id: "spark",
+    label: "Spark",
+    icon: "/icons/tokens/spark.svg",
   },
 ];
 
