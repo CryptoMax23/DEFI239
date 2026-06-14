@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
+import { createProvider } from "../../../lib/provider";
 import {
   UiPoolDataProvider,
   UiPoolDataProviderContext,
@@ -74,22 +75,11 @@ const getAlchemyFriendlyError = (err: any) => {
 };
 
 export const getAaveData = async (address: string, market: AaveMarketDataType) => {
-  const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-  if (!apiKey || apiKey === "YOUR_ALCHEMY_API_KEY_HERE") {
-    throw new Error(
-      "Missing or invalid NEXT_PUBLIC_ALCHEMY_API_KEY. Set a valid Alchemy API key in .env.local and restart the app."
-    );
-  }
-  if (!market.api || market.api.includes("undefined")) {
-    throw new Error(
-      "Missing or invalid Aave RPC endpoint. Please check your NEXT_PUBLIC_ALCHEMY_API_KEY and retry."
-    );
+  if (!market.api) {
+    throw new Error("Missing RPC endpoint for market " + market.id);
   }
 
-  const provider = new ethers.providers.StaticJsonRpcProvider(
-    market.api,
-    market.chainId
-  );
+  const provider = createProvider(market.api, market.chainId);
 
   const UiPoolDataCtx: UiPoolDataProviderContext = {
     uiPoolDataProviderAddress: market.addresses.UI_POOL_DATA_PROVIDER,

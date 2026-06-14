@@ -179,7 +179,7 @@ export const markets: AaveMarketDataType[] = [
     id: "ETHEREUM_V3",
     title: "Ethereum v3",
     chainId: ChainId.mainnet,
-    api: `https://rpc.ankr.com/eth`,
+    api: `https://ethereum-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
@@ -195,7 +195,7 @@ export const markets: AaveMarketDataType[] = [
     id: "ARBITRUM_V3",
     title: "Arbitrum v3",
     chainId: ChainId.arbitrum_one,
-    api: `https://rpc.ankr.com/arbitrum`,
+    api: `https://arbitrum-one-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Arbitrum.POOL_ADDRESSES_PROVIDER,
@@ -211,7 +211,7 @@ export const markets: AaveMarketDataType[] = [
     id: "OPTIMISM_V3",
     title: "Optimism v3",
     chainId: ChainId.optimism,
-    api: `https://rpc.ankr.com/optimism`,
+    api: `https://optimism-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Optimism.POOL_ADDRESSES_PROVIDER,
@@ -227,7 +227,7 @@ export const markets: AaveMarketDataType[] = [
     id: "BASE_V3",
     title: "Base v3",
     chainId: ChainId.base,
-    api: `https://mainnet.base.org`,
+    api: `https://base-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Base.POOL_ADDRESSES_PROVIDER,
@@ -243,7 +243,7 @@ export const markets: AaveMarketDataType[] = [
     id: "POLYGON_V3",
     title: "Polygon v3",
     chainId: ChainId.polygon,
-    api: `https://rpc.ankr.com/polygon`,
+    api: `https://polygon-bor-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Polygon.POOL_ADDRESSES_PROVIDER,
@@ -259,7 +259,7 @@ export const markets: AaveMarketDataType[] = [
     id: "AVALANCHE_V3",
     title: "Avalanche v3",
     chainId: ChainId.avalanche,
-    api: `https://rpc.ankr.com/avalanche`,
+    api: `https://avalanche-c-chain-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER:
         pools.AaveV3Avalanche.POOL_ADDRESSES_PROVIDER,
@@ -326,7 +326,7 @@ export const markets: AaveMarketDataType[] = [
     id: "BNB_V3",
     title: "BNB Chain v3",
     chainId: ChainId.bnb,
-    api: `https://rpc.ankr.com/bsc`,
+    api: `https://bsc-rpc.publicnode.com`,
     addresses: {
       LENDING_POOL_ADDRESS_PROVIDER: pools.AaveV3BNB.POOL_ADDRESSES_PROVIDER,
       UI_POOL_DATA_PROVIDER: pools.AaveV3BNB.UI_POOL_DATA_PROVIDER,

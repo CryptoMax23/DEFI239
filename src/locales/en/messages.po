@@ -127,7 +127,7 @@ msgstr ""
 msgid "Add, remove, and modify asset prices and quantities below to visualize changes to health factor and borrowing power."
 msgstr ""
 
-#: components/AddressInput.tsx:112
+#: components/AddressInput.tsx:140
 #: components/BorrowedAssetDetailsDialog.tsx:192
 #: components/ReserveAssetDetailsDialog.tsx:192
 msgid "Address copied to clipboard!"
@@ -183,7 +183,7 @@ msgstr ""
 msgid "Contract Information"
 msgstr ""
 
-#: components/AddressInput.tsx:113
+#: components/AddressInput.tsx:141
 #: components/BorrowedAssetDetailsDialog.tsx:193
 #: components/BorrowedAssetDetailsDialog.tsx:217
 #: components/ReserveAssetDetailsDialog.tsx:193
@@ -403,7 +403,7 @@ msgstr ""
 msgid "Use {assetSymbol} as collateral"
 msgstr ""
 
-#: components/AddressInput.tsx:91
+#: components/AddressInput.tsx:119
 #: pages/index.tsx:226
 msgid "Use Random Address"
 msgstr ""
@@ -412,7 +412,7 @@ msgstr ""
 msgid "Utilized Borrowing Power:"
 msgstr ""
 
-#: components/AddressInput.tsx:126
+#: components/AddressInput.tsx:154
 msgid "View address on {0}"
 msgstr ""
 

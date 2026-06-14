@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ethers } from "ethers";
 import { markets } from "../../../hooks/useAaveData";
 
 const allowedMethods = ["POST", "OPTIONS"];
@@ -16,23 +15,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const market = markets.find((m) => m.id === marketId);
     if (!market) return res.status(400).json({ enabled: false, message: "Unknown market" });
 
-    // quick provider probe
     try {
-      const provider = new ethers.providers.StaticJsonRpcProvider(market.api, market.chainId);
-      // lightweight call
-      await provider.getBlockNumber();
+      const response = await fetch(market.api, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+      });
+      if (!response.ok) {
+        return res.status(200).json({ enabled: false, message: `HTTP ${response.status}` });
+      }
+      const data = (await response.json()) as { result?: string; error?: { message: string } };
+      if (data.error) {
+        return res.status(200).json({ enabled: false, message: data.error.message });
+      }
       return res.status(200).json({ enabled: true });
     } catch (err: any) {
-      // attempt to extract a friendly message
-      const body = err?.error?.body || err?.body || err?.message || "Network probe failed";
-      let parsedMessage = String(body);
-      if (typeof body === "string") {
-        try {
-          const parsed = JSON.parse(body);
-          if (parsed?.error?.message) parsedMessage = parsed.error.message;
-        } catch {}
-      }
-      return res.status(200).json({ enabled: false, message: parsedMessage });
+      return res.status(200).json({ enabled: false, message: err.message || "Network probe failed" });
     }
   } catch (err: any) {
     console.error(err);
