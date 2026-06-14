@@ -7,6 +7,17 @@ const ANCHOR_VAULT = "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9"; // eUSDC prim
 const WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const NUM_SUB_ACCOUNTS = 5; // main + 4 sub-accounts
 
+// Known Euler v2 prime vaults on Ethereum mainnet — used to discover deposits
+// even when collateral isn't explicitly enabled in the EVC
+const PRIME_VAULTS = [
+  "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9", // eUSDC
+  "0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2", // eWETH
+  "0x313603FA690301b0CaeEf8069c065862f9162162", // eUSDT
+  "0x998D761eC1BAdaCeb064624cc3A1d37A46C88bA4", // eWBTC
+  "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee", // eweETH
+  "0x83F20F44975D03b1b09e64809B757c47f942BEeA", // esDAI
+];
+
 const EVAULT_ABI = [
   "function EVC() view returns (address)",
   "function asset() view returns (address)",
@@ -160,12 +171,81 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
   );
 
+  // Accounts with active borrows
   const activeAccounts = accountStates.filter((a) => a.controllers.length > 0);
-  if (activeAccounts.length === 0) {
+
+  // Accounts without borrows — scan prime vaults to detect supply-only positions
+  const supplyOnlyAccounts = accountStates.filter((a) => a.controllers.length === 0);
+  const supplyOnlyPositions = (
+    await Promise.all(
+      supplyOnlyAccounts.map(async ({ account, subAccountId }) => {
+        const vaultBalances = await Promise.all(
+          PRIME_VAULTS.map(async (vaultAddress) => {
+            const vault = new ethers.Contract(vaultAddress, EVAULT_ABI, provider);
+            const shares = await vault.balanceOf(account).catch(() => ethers.BigNumber.from(0));
+            if ((shares as ethers.BigNumber).isZero()) return null;
+            return { vaultAddress, shares: shares as ethers.BigNumber, vault };
+          })
+        );
+        const found = vaultBalances.filter(Boolean) as NonNullable<(typeof vaultBalances)[number]>[];
+        if (found.length === 0) return null;
+
+        const collaterals = await Promise.all(
+          found.map(async ({ vaultAddress, shares, vault }) => {
+            const [colAssetAddress, colSymbol, colOracle, colUoA] = await Promise.all([
+              vault.asset().catch(() => ""),
+              vault.symbol().catch(() => "?"),
+              vault.oracle().catch(() => null),
+              vault.unitOfAccount().catch(() => null),
+            ]);
+            const assets = await vault.convertToAssets(shares).catch(() => shares) as ethers.BigNumber;
+            let colAssetSymbol = "?";
+            let colAssetDecimals = 18;
+            if (colAssetAddress) {
+              const erc20 = new ethers.Contract(colAssetAddress, ERC20_ABI, provider);
+              [colAssetSymbol, colAssetDecimals] = await Promise.all([
+                erc20.symbol().catch(() => "?"),
+                erc20.decimals().catch(() => 18),
+              ]);
+            }
+            const tokens = Number(assets) / 10 ** colAssetDecimals;
+            const priceUsd = colAssetAddress
+              ? await getUsdPrice(colAssetAddress, colAssetDecimals, colOracle, colUoA, provider)
+              : 0;
+            return {
+              vaultAddress,
+              vaultSymbol: colSymbol,
+              assetSymbol: colAssetSymbol,
+              tokens,
+              priceUsd,
+              valueUsd: tokens * priceUsd,
+              liquidationLTV: 0,
+              liquidationValueUsd: 0,
+            };
+          })
+        );
+
+        return {
+          subAccountId,
+          account,
+          liabilityVaultAddress: "",
+          liabilityVaultSymbol: "",
+          debtAssetSymbol: "",
+          debtTokens: 0,
+          debtPriceUsd: 0,
+          debtUsd: 0,
+          collaterals,
+          healthFactor: -1,
+        };
+      })
+    )
+  ).filter(Boolean) as NonNullable<ReturnType<typeof Promise.resolve<any>>>;
+
+  if (activeAccounts.length === 0 && supplyOnlyPositions.length === 0) {
     return res.status(200).json({ positions: [] });
   }
 
-  // For each active sub-account, fetch full position data
+  // For each active sub-account (with borrow), fetch full position data
   const positions = await Promise.all(
     activeAccounts.map(async ({ account, subAccountId, controllers, collaterals }) => {
       const liabilityVaultAddress = controllers[0];
@@ -196,9 +276,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         : 0;
       const debtUsd = debtTokens * debtPriceUsd;
 
+      // Merge EVC collaterals with prime vault scan so we never miss a deposit.
+      // The EVC only tracks vaults explicitly enabled as collateral; a direct scan
+      // catches vaults where the user deposited without calling enableCollateral().
+      const evcColSet = new Set((collaterals as string[]).map((a) => a.toLowerCase()));
+      const candidateVaults = [
+        ...collaterals,
+        ...PRIME_VAULTS.filter((v) => !evcColSet.has(v.toLowerCase())),
+      ];
+
       // Collaterals in parallel
       const collateralResults = await Promise.all(
-        collaterals.map(async (colVaultAddress: string) => {
+        candidateVaults.map(async (colVaultAddress: string) => {
           const colVault = new ethers.Contract(colVaultAddress, EVAULT_ABI, provider);
 
           const [shares, colAssetAddress, colSymbol, colOracle, colUoA, ltvData] = await Promise.all([
@@ -268,7 +357,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
   );
 
-  return res.status(200).json({ positions });
+  return res.status(200).json({ positions: [...positions, ...supplyOnlyPositions] });
 };
 
 export default handler;

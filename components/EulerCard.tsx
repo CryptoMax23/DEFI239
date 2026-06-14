@@ -98,24 +98,16 @@ function PositionCard({ pos, posIdx, onUpdate, onReset }: PositionCardProps) {
           </Title>
         </Group>
         <Group spacing="xs">
-          <Tooltip label={hf < 0 ? "No debt" : `Health Factor: ${hf.toFixed(3)}`} withArrow>
-            <Badge color={hfColor} variant="filled" size="lg">
-              {hf < 0 ? (
-                <FaInfinity />
-              ) : (
-                hf.toFixed(2)
-              )}
-            </Badge>
-          </Tooltip>
+          {pos.debtUsd > 0 && (
+            <Tooltip label={hf < 0 ? "No debt" : `Health Factor: ${hf.toFixed(3)}`} withArrow>
+              <Badge color={hfColor} variant="filled" size="lg">
+                {hf < 0 ? <FaInfinity /> : hf.toFixed(2)}
+              </Badge>
+            </Tooltip>
+          )}
           {isModified && (
             <Tooltip label="Reset to on-chain values" withArrow>
-              <Button
-                variant="subtle"
-                compact
-                color="gray"
-                onClick={onReset}
-                leftIcon={<RxReset />}
-              >
+              <Button variant="subtle" compact color="gray" onClick={onReset} leftIcon={<RxReset />}>
                 <Trans>Reset</Trans>
               </Button>
             </Tooltip>
@@ -123,59 +115,59 @@ function PositionCard({ pos, posIdx, onUpdate, onReset }: PositionCardProps) {
         </Group>
       </Flex>
 
-      {/* Debt summary */}
-      <Box mb="sm">
-        <Text size="xs" color="dimmed" mb={4}>
-          <Trans>Borrow</Trans>
-        </Text>
-        <Flex justify="space-between" align="center">
-          <Group spacing="xs">
-            <TokenIcon symbol={pos.debtAssetSymbol} size={18} />
-            <Text size="sm" weight={600}>
-              {pos.debtAssetSymbol}
+      {/* Debt summary — only when there is a borrow */}
+      {pos.debtUsd > 0 && (
+        <>
+          <Box mb="sm">
+            <Text size="xs" color="dimmed" mb={4}>
+              <Trans>Borrow</Trans>
             </Text>
-            <Text size="sm" color="dimmed">
-              via {pos.liabilityVaultSymbol}
-            </Text>
-          </Group>
-          <Text size="sm">
-            {formatNumber(pos.workingDebtTokens, { precision: 4 })}{" "}
-            <Text size="xs" color="dimmed" span>
-              (${formatNumber(pos.workingDebtUsd, { precision: 2 })})
-            </Text>
-          </Text>
-        </Flex>
-      </Box>
+            <Flex justify="space-between" align="center">
+              <Group spacing="xs">
+                <TokenIcon symbol={pos.debtAssetSymbol} size={18} />
+                <Text size="sm" weight={600}>{pos.debtAssetSymbol}</Text>
+                <Text size="sm" color="dimmed">via {pos.liabilityVaultSymbol}</Text>
+              </Group>
+              <Text size="sm">
+                {formatNumber(pos.workingDebtTokens, { precision: 4 })}{" "}
+                <Text size="xs" color="dimmed" span>
+                  (${formatNumber(pos.workingDebtUsd, { precision: 2 })})
+                </Text>
+              </Text>
+            </Flex>
+          </Box>
 
-      {/* Debt simulation sliders */}
-      <Box mb="md" px="xs">
-        <Text size="xs" color="dimmed" mb={4}>
-          Borrow amount ({pos.debtAssetSymbol})
-        </Text>
-        <Slider
-          min={0}
-          max={pos.debtTokens * 2 || 1}
-          step={pos.debtTokens / 100 || 0.01}
-          value={pos.workingDebtTokens}
-          onChange={(v) => onUpdate({ workingDebtTokens: v })}
-          label={(v) => formatNumber(v, { precision: 4 })}
-          size="xs"
-        />
-        <Text size="xs" color="dimmed" mb={4} mt="xs">
-          {pos.debtAssetSymbol} price (USD)
-        </Text>
-        <Slider
-          min={pos.debtPriceUsd * 0.1}
-          max={pos.debtPriceUsd * 2}
-          step={pos.debtPriceUsd / 100 || 0.01}
-          value={pos.workingDebtPriceUsd}
-          onChange={(v) => onUpdate({ workingDebtPriceUsd: v })}
-          label={(v) => `$${formatNumber(v, { precision: 4 })}`}
-          size="xs"
-        />
-      </Box>
+          {/* Debt simulation sliders */}
+          <Box mb="md" px="xs">
+            <Text size="xs" color="dimmed" mb={4}>
+              Borrow amount ({pos.debtAssetSymbol})
+            </Text>
+            <Slider
+              min={0}
+              max={pos.debtTokens * 2 || 1}
+              step={pos.debtTokens / 100 || 0.01}
+              value={pos.workingDebtTokens}
+              onChange={(v) => onUpdate({ workingDebtTokens: v })}
+              label={(v) => formatNumber(v, { precision: 4 })}
+              size="xs"
+            />
+            <Text size="xs" color="dimmed" mb={4} mt="xs">
+              {pos.debtAssetSymbol} price (USD)
+            </Text>
+            <Slider
+              min={pos.debtPriceUsd * 0.1}
+              max={pos.debtPriceUsd * 2}
+              step={pos.debtPriceUsd / 100 || 0.01}
+              value={pos.workingDebtPriceUsd}
+              onChange={(v) => onUpdate({ workingDebtPriceUsd: v })}
+              label={(v) => `$${formatNumber(v, { precision: 4 })}`}
+              size="xs"
+            />
+          </Box>
+        </>
+      )}
 
-      <Divider mb="sm" label="Collateral" labelPosition="left" />
+      <Divider mb="sm" label={pos.debtUsd > 0 ? "Collateral" : "Supplied"} labelPosition="left" />
 
       {/* Collaterals */}
       {pos.collaterals.length === 0 ? (
