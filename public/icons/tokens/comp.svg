@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Dark background -->
+  <circle cx="50" cy="50" r="50" fill="#0A1628"/>
+  <!-- Compound C arc -->
+  <path d="M70 26 A30 30 0 1 0 70 74"
+        stroke="#00D395" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <!-- Comet dot at top of arc -->
+  <circle cx="70" cy="26" r="7" fill="#00D395"/>
+</svg>
