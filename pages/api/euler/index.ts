@@ -2,20 +2,25 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
 import { createProvider } from "../../../lib/provider";
 
-// Any Euler v2 vault to bootstrap the EVC address
-const ANCHOR_VAULT = "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9"; // eUSDC prime
+const ANCHOR_VAULT = "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9";
 const WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-const NUM_SUB_ACCOUNTS = 5; // main + 4 sub-accounts
+const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11";
+const NUM_SUB_ACCOUNTS = 5;
 
-// Known Euler v2 prime vaults on Ethereum mainnet — used to discover deposits
-// even when collateral isn't explicitly enabled in the EVC
+// Known prime vaults — fallback scan when EVC returns no collaterals
 const PRIME_VAULTS = [
-  "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9", // eUSDC
-  "0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2", // eWETH
-  "0x313603FA690301b0CaeEf8069c065862f9162162", // eUSDT
-  "0x998D761eC1BAdaCeb064624cc3A1d37A46C88bA4", // eWBTC
-  "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee", // eweETH
-  "0x83F20F44975D03b1b09e64809B757c47f942BEeA", // esDAI
+  "0x797DD80692c3b2dAdabCe8e30C07fDE5307D48a9",
+  "0xD8b27CF359b7D15710a5BE299AF6e7Bf904984C2",
+  "0x313603FA690301b0CaeEf8069c065862f9162162",
+  "0x998D761eC1BAdaCeb064624cc3A1d37A46C88bA4",
+  "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee",
+  "0x83F20F44975D03b1b09e64809B757c47f942BEeA",
+];
+
+// ── ABIs ────────────────────────────────────────────────────────────────────
+
+const MULTICALL3_ABI = [
+  "function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])",
 ];
 
 const EVAULT_ABI = [
@@ -50,27 +55,39 @@ const PRICE_ORACLE_ABI = [
   "function getQuote(uint256 inAmount, address base, address quote) view returns (uint256 outAmount)",
 ];
 
-// Chainlink USD price feeds on Ethereum mainnet (token → feed)
+// ── Price data ───────────────────────────────────────────────────────────────
+
 const CHAINLINK_FEEDS: Record<string, string> = {
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // WETH
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6", // USDC
-  "0xdac17f958d2ee523a2206206994597c13d831ec7": "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D", // USDT
-  "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c", // WBTC
-  "0x6b175474e89094c44da98b954eedeac495271d0f": "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9", // DAI
-  "0x83f20f44975d03b1b09e64809b757c47f942beea": "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9", // sDAI ≈ DAI
-  "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // weETH ≈ ETH
-  "0xae7ab96520de3a18e5e111b5eaab095312d7fe84": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", // stETH ≈ ETH
+  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6",
+  "0xdac17f958d2ee523a2206206994597c13d831ec7": "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D",
+  "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c",
+  "0x6b175474e89094c44da98b954eedeac495271d0f": "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9",
+  "0x83f20f44975d03b1b09e64809b757c47f942beea": "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9",
+  "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  "0xae7ab96520de3a18e5e111b5eaab095312d7fe84": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+  // stablecoins priced at $1 — handled in getUsdPrice directly
 };
 
-// Addresses recognised as USD unit of account
-const USD_UNIT_OF_ACCOUNTS = new Set([
-  "0x0000000000000000000000000000000000000348", // Virtual USD (ISO 4217 840)
+const STABLE_TOKENS = new Set([
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC
-  "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
   "0xdac17f958d2ee523a2206206994597c13d831ec7", // USDT
+  "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
+  "0x6c3ea9036406852006290770bedfcaba0e23a0e8", // PYUSD
+  "0x8f1960098c4dC5EeEb33D3E288c5d9Ca3b82f92e".toLowerCase(), // RLUSD
+  "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
+]);
+
+const USD_UNIT_OF_ACCOUNTS = new Set([
+  "0x0000000000000000000000000000000000000348",
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "0x6b175474e89094c44da98b954eedeac495271d0f",
+  "0xdac17f958d2ee523a2206206994597c13d831ec7",
 ]);
 
 const VIRTUAL_USD = "0x0000000000000000000000000000000000000348";
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getSubAccountAddress(primary: string, subAccountId: number): string {
   const addr = BigInt(primary.toLowerCase());
@@ -80,10 +97,19 @@ function getSubAccountAddress(primary: string, subAccountId: number): string {
   return ethers.utils.getAddress("0x" + subAddr.toString(16).padStart(40, "0"));
 }
 
-async function getChainlinkPrice(
-  feedAddress: string,
-  provider: ethers.providers.Provider
-): Promise<number> {
+/** Batch multicall3 — returns raw hex returnData per call (empty string if failed) */
+async function multicall(
+  provider: ethers.providers.Provider,
+  calls: Array<{ target: string; callData: string }>
+): Promise<string[]> {
+  const mc = new ethers.Contract(MULTICALL3, MULTICALL3_ABI, provider);
+  const results: Array<{ success: boolean; returnData: string }> = await mc.aggregate3(
+    calls.map((c) => ({ target: c.target, allowFailure: true, callData: c.callData }))
+  );
+  return results.map((r) => (r.success ? r.returnData : "0x"));
+}
+
+async function getChainlinkPrice(feedAddress: string, provider: ethers.providers.Provider): Promise<number> {
   const feed = new ethers.Contract(feedAddress, CHAINLINK_ABI, provider);
   const [answer, dec] = await Promise.all([feed.latestAnswer(), feed.decimals()]);
   return Number(answer) / 10 ** Number(dec);
@@ -94,19 +120,18 @@ async function getUsdPrice(
   assetDecimals: number,
   oracleAddress: string | null,
   unitOfAccount: string | null,
-  provider: ethers.providers.Provider
+  provider: ethers.providers.Provider,
+  wethUsd: number
 ): Promise<number> {
   const assetLower = assetAddress.toLowerCase();
 
-  // Chainlink first
+  if (STABLE_TOKENS.has(assetLower)) return 1.0;
+
   const feed = CHAINLINK_FEEDS[assetLower];
   if (feed) {
-    try {
-      return await getChainlinkPrice(feed, provider);
-    } catch {}
+    try { return await getChainlinkPrice(feed, provider); } catch {}
   }
 
-  // Euler oracle fallback
   if (oracleAddress && oracleAddress !== ethers.constants.AddressZero && unitOfAccount) {
     try {
       const oracle = new ethers.Contract(oracleAddress, PRICE_ORACLE_ABI, provider);
@@ -114,25 +139,20 @@ async function getUsdPrice(
       const uoaLower = unitOfAccount.toLowerCase();
       const outAmount = await oracle.getQuote(inAmount, assetAddress, unitOfAccount);
 
-      if (uoaLower === VIRTUAL_USD.toLowerCase()) {
-        return Number(outAmount) / 1e18;
-      }
+      if (uoaLower === VIRTUAL_USD.toLowerCase()) return Number(outAmount) / 1e18;
       if (USD_UNIT_OF_ACCOUNTS.has(uoaLower)) {
-        const isSmallDecimal = uoaLower === "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"; // USDC = 6 decimals
-        return Number(outAmount) / 10 ** (isSmallDecimal ? 6 : 18);
+        const isSmall = uoaLower === "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+        return Number(outAmount) / 10 ** (isSmall ? 6 : 18);
       }
       if (uoaLower === WETH_ADDRESS.toLowerCase()) {
-        const wethFeed = CHAINLINK_FEEDS[WETH_ADDRESS.toLowerCase()];
-        if (wethFeed) {
-          const wethUsd = await getChainlinkPrice(wethFeed, provider);
-          return (Number(outAmount) / 1e18) * wethUsd;
-        }
+        return (Number(outAmount) / 1e18) * wethUsd;
       }
     } catch {}
   }
-
   return 0;
 }
+
+// ── Main handler ─────────────────────────────────────────────────────────────
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const address = req.query.address as string;
@@ -141,8 +161,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const provider = createProvider("https://ethereum-rpc.publicnode.com", 1);
+  const evaultIface = new ethers.utils.Interface(EVAULT_ABI);
+  const erc20Iface = new ethers.utils.Interface(ERC20_ABI);
+  const chainlinkIface = new ethers.utils.Interface(CHAINLINK_ABI);
 
-  // Bootstrap EVC address from any known vault
+  // ── 1. Bootstrap EVC address ──────────────────────────────────────────────
   const anchorVault = new ethers.Contract(ANCHOR_VAULT, EVAULT_ABI, provider);
   let evcAddress: string;
   try {
@@ -152,113 +175,129 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
   const evc = new ethers.Contract(evcAddress, EVC_ABI, provider);
 
-  // Build sub-account list: main + 4 sub-accounts
+  // Prefetch WETH price once (used as fallback for oracle conversions)
+  const wethUsd = await getChainlinkPrice(
+    CHAINLINK_FEEDS[WETH_ADDRESS.toLowerCase()], provider
+  ).catch(() => 2500);
+
+  // ── 2. Sub-accounts: controllers + collaterals ────────────────────────────
   const accounts = [
     address,
-    ...Array.from({ length: NUM_SUB_ACCOUNTS - 1 }, (_, i) =>
-      getSubAccountAddress(address, i + 1)
-    ),
+    ...Array.from({ length: NUM_SUB_ACCOUNTS - 1 }, (_, i) => getSubAccountAddress(address, i + 1)),
   ];
 
-  // Parallel: fetch controllers + collaterals for all sub-accounts
   const accountStates = await Promise.all(
     accounts.map(async (account, idx) => {
       const [controllers, collaterals] = await Promise.all([
         evc.getControllers(account).catch(() => [] as string[]),
         evc.getCollaterals(account).catch(() => [] as string[]),
       ]);
-      return { account, subAccountId: idx, controllers: controllers as string[], collaterals: collaterals as string[] };
+      return {
+        account,
+        subAccountId: idx,
+        controllers: controllers as string[],
+        collaterals: collaterals as string[],
+      };
     })
   );
 
-  // Accounts with active borrows
   const activeAccounts = accountStates.filter((a) => a.controllers.length > 0);
-
-  // Accounts without borrows — scan prime vaults to detect supply-only positions
   const supplyOnlyAccounts = accountStates.filter((a) => a.controllers.length === 0);
-  const supplyOnlyPositions = (
-    await Promise.all(
-      supplyOnlyAccounts.map(async ({ account, subAccountId }) => {
-        const vaultBalances = await Promise.all(
-          PRIME_VAULTS.map(async (vaultAddress) => {
-            const vault = new ethers.Contract(vaultAddress, EVAULT_ABI, provider);
-            const shares = await vault.balanceOf(account).catch(() => ethers.BigNumber.from(0));
-            if ((shares as ethers.BigNumber).isZero()) return null;
-            return { vaultAddress, shares: shares as ethers.BigNumber, vault };
-          })
-        );
-        const found = vaultBalances.filter(Boolean) as NonNullable<(typeof vaultBalances)[number]>[];
-        if (found.length === 0) return null;
 
-        const collaterals = await Promise.all(
-          found.map(async ({ vaultAddress, shares, vault }) => {
-            const [colAssetAddress, colSymbol, colOracle, colUoA] = await Promise.all([
-              vault.asset().catch(() => ""),
-              vault.symbol().catch(() => "?"),
-              vault.oracle().catch(() => null),
-              vault.unitOfAccount().catch(() => null),
+  // ── 3. Supply-only positions (no borrow) ─────────────────────────────────
+  // Batch balanceOf across all prime vaults × supply-only accounts
+  const supplyOnlyPositions: any[] = [];
+  if (supplyOnlyAccounts.length > 0) {
+    const balCalls = supplyOnlyAccounts.flatMap((a) =>
+      PRIME_VAULTS.map((v) => ({
+        target: v,
+        callData: evaultIface.encodeFunctionData("balanceOf", [a.account]),
+      }))
+    );
+    const balResults = await multicall(provider, balCalls);
+
+    for (let ai = 0; ai < supplyOnlyAccounts.length; ai++) {
+      const { account, subAccountId } = supplyOnlyAccounts[ai];
+      const found: Array<{ vault: string; shares: ethers.BigNumber }> = [];
+      for (let vi = 0; vi < PRIME_VAULTS.length; vi++) {
+        const raw = balResults[ai * PRIME_VAULTS.length + vi];
+        if (raw === "0x" || raw === "0x" + "0".repeat(64)) continue;
+        const shares = evaultIface.decodeFunctionResult("balanceOf", raw)[0] as ethers.BigNumber;
+        if (!shares.isZero()) found.push({ vault: PRIME_VAULTS[vi], shares });
+      }
+      if (found.length === 0) continue;
+
+      // Fetch vault info + assets
+      const infoCalls = found.flatMap(({ vault, shares }) => [
+        { target: vault, callData: evaultIface.encodeFunctionData("asset", []) },
+        { target: vault, callData: evaultIface.encodeFunctionData("symbol", []) },
+        { target: vault, callData: evaultIface.encodeFunctionData("oracle", []) },
+        { target: vault, callData: evaultIface.encodeFunctionData("unitOfAccount", []) },
+        { target: vault, callData: evaultIface.encodeFunctionData("convertToAssets", [shares]) },
+      ]);
+      const infoResults = await multicall(provider, infoCalls);
+
+      const collaterals = await Promise.all(
+        found.map(async ({ vault }, i) => {
+          const base = i * 5;
+          const tryDecode = (fn: string, data: string) => {
+            try { return evaultIface.decodeFunctionResult(fn, data); } catch { return null; }
+          };
+          const assetAddress = tryDecode("asset", infoResults[base])?.[0] ?? "";
+          const vaultSymbol = tryDecode("symbol", infoResults[base + 1])?.[0] ?? "?";
+          const oracle = tryDecode("oracle", infoResults[base + 2])?.[0] ?? null;
+          const uoa = tryDecode("unitOfAccount", infoResults[base + 3])?.[0] ?? null;
+          const assets = tryDecode("convertToAssets", infoResults[base + 4])?.[0] as ethers.BigNumber | null;
+
+          let assetSymbol = "?";
+          let assetDecimals = 18;
+          if (assetAddress) {
+            const erc20 = new ethers.Contract(assetAddress, ERC20_ABI, provider);
+            [assetSymbol, assetDecimals] = await Promise.all([
+              erc20.symbol().catch(() => "?"),
+              erc20.decimals().catch(() => 18),
             ]);
-            const assets = await vault.convertToAssets(shares).catch(() => shares) as ethers.BigNumber;
-            let colAssetSymbol = "?";
-            let colAssetDecimals = 18;
-            if (colAssetAddress) {
-              const erc20 = new ethers.Contract(colAssetAddress, ERC20_ABI, provider);
-              [colAssetSymbol, colAssetDecimals] = await Promise.all([
-                erc20.symbol().catch(() => "?"),
-                erc20.decimals().catch(() => 18),
-              ]);
-            }
-            const tokens = Number(assets) / 10 ** colAssetDecimals;
-            const priceUsd = colAssetAddress
-              ? await getUsdPrice(colAssetAddress, colAssetDecimals, colOracle, colUoA, provider)
-              : 0;
-            return {
-              vaultAddress,
-              vaultSymbol: colSymbol,
-              assetSymbol: colAssetSymbol,
-              tokens,
-              priceUsd,
-              valueUsd: tokens * priceUsd,
-              liquidationLTV: 0,
-              liquidationValueUsd: 0,
-            };
-          })
-        );
+          }
+          const tokens = assets ? Number(assets) / 10 ** assetDecimals : 0;
+          const priceUsd = assetAddress ? await getUsdPrice(assetAddress, assetDecimals, oracle, uoa, provider, wethUsd) : 0;
+          return { vaultAddress: vault, vaultSymbol, assetSymbol, tokens, priceUsd, valueUsd: tokens * priceUsd, liquidationLTV: 0, liquidationValueUsd: 0 };
+        })
+      );
 
-        return {
-          subAccountId,
-          account,
-          liabilityVaultAddress: "",
-          liabilityVaultSymbol: "",
-          debtAssetSymbol: "",
-          debtTokens: 0,
-          debtPriceUsd: 0,
-          debtUsd: 0,
-          collaterals,
-          healthFactor: -1,
-        };
-      })
-    )
-  ).filter(Boolean) as NonNullable<ReturnType<typeof Promise.resolve<any>>>;
+      supplyOnlyPositions.push({
+        subAccountId, account,
+        liabilityVaultAddress: "", liabilityVaultSymbol: "",
+        debtAssetSymbol: "", debtTokens: 0, debtPriceUsd: 0, debtUsd: 0,
+        collaterals, healthFactor: -1,
+      });
+    }
+  }
 
   if (activeAccounts.length === 0 && supplyOnlyPositions.length === 0) {
     return res.status(200).json({ positions: [] });
   }
 
-  // For each active sub-account (with borrow), fetch full position data
-  const positions = await Promise.all(
-    activeAccounts.map(async ({ account, subAccountId, controllers, collaterals }) => {
+  // ── 4. Borrow positions ───────────────────────────────────────────────────
+  const borrowPositions = await Promise.all(
+    activeAccounts.map(async ({ account, subAccountId, controllers, collaterals: evcCollaterals }) => {
       const liabilityVaultAddress = controllers[0];
-      const liabilityVault = new ethers.Contract(liabilityVaultAddress, EVAULT_ABI, provider);
 
-      const [debtAmount, liabilityAssetAddress, liabilitySymbol, liabilityOracle, liabilityUoA] =
-        await Promise.all([
-          liabilityVault.debtOf(account).catch(() => ethers.BigNumber.from(0)),
-          liabilityVault.asset().catch(() => ""),
-          liabilityVault.symbol().catch(() => "?"),
-          liabilityVault.oracle().catch(() => null),
-          liabilityVault.unitOfAccount().catch(() => null),
-        ]);
+      // Batch: liability vault info in one multicall
+      const liabCalls = [
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("debtOf", [account]) },
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("asset", []) },
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("symbol", []) },
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("oracle", []) },
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("unitOfAccount", []) },
+      ];
+      const liabResults = await multicall(provider, liabCalls);
+      const tryD = (fn: string, data: string) => { try { return evaultIface.decodeFunctionResult(fn, data); } catch { return null; } };
+
+      const debtAmount = tryD("debtOf", liabResults[0])?.[0] as ethers.BigNumber ?? ethers.BigNumber.from(0);
+      const liabilityAssetAddress: string = tryD("asset", liabResults[1])?.[0] ?? "";
+      const liabilitySymbol: string = tryD("symbol", liabResults[2])?.[0] ?? "?";
+      const liabilityOracle: string | null = tryD("oracle", liabResults[3])?.[0] ?? null;
+      const liabilityUoA: string | null = tryD("unitOfAccount", liabResults[4])?.[0] ?? null;
 
       let liabilityAssetSymbol = "?";
       let liabilityAssetDecimals = 18;
@@ -269,41 +308,70 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           erc20.decimals().catch(() => 18),
         ]);
       }
-
       const debtTokens = Number(debtAmount) / 10 ** liabilityAssetDecimals;
       const debtPriceUsd = liabilityAssetAddress
-        ? await getUsdPrice(liabilityAssetAddress, liabilityAssetDecimals, liabilityOracle, liabilityUoA, provider)
+        ? await getUsdPrice(liabilityAssetAddress, liabilityAssetDecimals, liabilityOracle, liabilityUoA, provider, wethUsd)
         : 0;
       const debtUsd = debtTokens * debtPriceUsd;
 
-      // Merge EVC collaterals with prime vault scan so we never miss a deposit.
-      // The EVC only tracks vaults explicitly enabled as collateral; a direct scan
-      // catches vaults where the user deposited without calling enableCollateral().
-      const evcColSet = new Set((collaterals as string[]).map((a) => a.toLowerCase()));
+      // Candidate collateral vaults: EVC list + prime vaults not already included
+      const evcSet = new Set(evcCollaterals.map((a: string) => a.toLowerCase()));
       const candidateVaults = [
-        ...collaterals,
-        ...PRIME_VAULTS.filter((v) => !evcColSet.has(v.toLowerCase())),
+        ...evcCollaterals,
+        ...PRIME_VAULTS.filter((v) => !evcSet.has(v.toLowerCase())),
       ];
 
-      // Collaterals in parallel
-      const collateralResults = await Promise.all(
-        candidateVaults.map(async (colVaultAddress: string) => {
-          const colVault = new ethers.Contract(colVaultAddress, EVAULT_ABI, provider);
+      // Batch: balanceOf for all candidates in one multicall
+      const balCalls = candidateVaults.map((v) => ({
+        target: v,
+        callData: evaultIface.encodeFunctionData("balanceOf", [account]),
+      }));
+      const balResults = await multicall(provider, balCalls);
 
-          const [shares, colAssetAddress, colSymbol, colOracle, colUoA, ltvData] = await Promise.all([
-            colVault.balanceOf(account).catch(() => ethers.BigNumber.from(0)),
-            colVault.asset().catch(() => ""),
-            colVault.symbol().catch(() => "?"),
-            colVault.oracle().catch(() => null),
-            colVault.unitOfAccount().catch(() => null),
-            liabilityVault.LTVFull(colVaultAddress).catch(() => null),
-          ]);
+      const nonZeroVaults = candidateVaults.filter((_, i) => {
+        const raw = balResults[i];
+        if (raw === "0x") return false;
+        try {
+          const bal = evaultIface.decodeFunctionResult("balanceOf", raw)[0] as ethers.BigNumber;
+          return !bal.isZero();
+        } catch { return false; }
+      });
 
-          if ((shares as ethers.BigNumber).isZero()) return null;
+      if (nonZeroVaults.length === 0) {
+        return { subAccountId, account, liabilityVaultAddress, liabilityVaultSymbol: liabilitySymbol, debtAssetSymbol: liabilityAssetSymbol, debtTokens, debtPriceUsd, debtUsd, collaterals: [], healthFactor: 0 };
+      }
 
-          const assets = await colVault
-            .convertToAssets(shares)
-            .catch(() => shares) as ethers.BigNumber;
+      // Get shares for non-zero vaults
+      const shareMap: Record<string, ethers.BigNumber> = {};
+      nonZeroVaults.forEach((v) => {
+        const idx = candidateVaults.indexOf(v);
+        try {
+          shareMap[v] = evaultIface.decodeFunctionResult("balanceOf", balResults[idx])[0] as ethers.BigNumber;
+        } catch { shareMap[v] = ethers.BigNumber.from(0); }
+      });
+
+      // Batch: vault info + LTV + convertToAssets for non-zero vaults
+      const infoCalls = nonZeroVaults.flatMap((v) => [
+        { target: v, callData: evaultIface.encodeFunctionData("asset", []) },
+        { target: v, callData: evaultIface.encodeFunctionData("symbol", []) },
+        { target: v, callData: evaultIface.encodeFunctionData("oracle", []) },
+        { target: v, callData: evaultIface.encodeFunctionData("unitOfAccount", []) },
+        { target: v, callData: evaultIface.encodeFunctionData("convertToAssets", [shareMap[v]]) },
+        { target: liabilityVaultAddress, callData: evaultIface.encodeFunctionData("LTVFull", [v]) },
+      ]);
+      const infoResults = await multicall(provider, infoCalls);
+
+      const collateralDetails = await Promise.all(
+        nonZeroVaults.map(async (v, i) => {
+          const base = i * 6;
+          const td = (fn: string, data: string) => { try { return evaultIface.decodeFunctionResult(fn, data); } catch { return null; } };
+
+          const colAssetAddress: string = td("asset", infoResults[base])?.[0] ?? "";
+          const colSymbol: string = td("symbol", infoResults[base + 1])?.[0] ?? "?";
+          const colOracle: string | null = td("oracle", infoResults[base + 2])?.[0] ?? null;
+          const colUoA: string | null = td("unitOfAccount", infoResults[base + 3])?.[0] ?? null;
+          const assets = td("convertToAssets", infoResults[base + 4])?.[0] as ethers.BigNumber | null;
+          const ltvData = td("LTVFull", infoResults[base + 5]);
 
           let colAssetSymbol = "?";
           let colAssetDecimals = 18;
@@ -315,49 +383,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             ]);
           }
 
-          const tokens = Number(assets) / 10 ** colAssetDecimals;
+          const tokens = assets ? Number(assets) / 10 ** colAssetDecimals : 0;
           const priceUsd = colAssetAddress
-            ? await getUsdPrice(colAssetAddress, colAssetDecimals, colOracle, colUoA, provider)
+            ? await getUsdPrice(colAssetAddress, colAssetDecimals, colOracle, colUoA, provider, wethUsd)
             : 0;
           const valueUsd = tokens * priceUsd;
-
-          // liquidationLTV is index 1 in the tuple, in 1e4 units (e.g. 8500 = 85%)
           const liquidationLTV = ltvData ? Number(ltvData[1]) / 10000 : 0;
           const liquidationValueUsd = valueUsd * liquidationLTV;
 
-          return {
-            vaultAddress: colVaultAddress,
-            vaultSymbol: colSymbol,
-            assetSymbol: colAssetSymbol,
-            tokens,
-            priceUsd,
-            valueUsd,
-            liquidationLTV,
-            liquidationValueUsd,
-          };
+          return { vaultAddress: v, vaultSymbol: colSymbol, assetSymbol: colAssetSymbol, tokens, priceUsd, valueUsd, liquidationLTV, liquidationValueUsd };
         })
       );
 
-      const validCollaterals = collateralResults.filter(Boolean) as NonNullable<(typeof collateralResults)[number]>[];
-      const totalLiquidationUsd = validCollaterals.reduce((s, c) => s + c.liquidationValueUsd, 0);
+      const totalLiquidationUsd = collateralDetails.reduce((s, c) => s + c.liquidationValueUsd, 0);
       const healthFactor = debtUsd > 0 ? totalLiquidationUsd / debtUsd : -1;
 
-      return {
-        subAccountId,
-        account,
-        liabilityVaultAddress,
-        liabilityVaultSymbol: liabilitySymbol,
-        debtAssetSymbol: liabilityAssetSymbol,
-        debtTokens,
-        debtPriceUsd,
-        debtUsd,
-        collaterals: validCollaterals,
-        healthFactor,
-      };
+      return { subAccountId, account, liabilityVaultAddress, liabilityVaultSymbol: liabilitySymbol, debtAssetSymbol: liabilityAssetSymbol, debtTokens, debtPriceUsd, debtUsd, collaterals: collateralDetails, healthFactor };
     })
   );
 
-  return res.status(200).json({ positions: [...positions, ...supplyOnlyPositions] });
+  return res.status(200).json({ positions: [...borrowPositions, ...supplyOnlyPositions] });
 };
 
 export default handler;
