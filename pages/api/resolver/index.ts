@@ -1,8 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
 
-import { Alchemy, Network } from "alchemy-sdk";
-
 const allowedMethods = ["POST", "OPTIONS"];
 
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
@@ -27,13 +25,11 @@ const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
 
 export const getResolvedAddress = async (address: string) => {
   if (ethers.utils.isAddress(address)) return address;
-  const config = {
-    apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-    network: Network.ETH_MAINNET,
-  };
-  const alchemy = new Alchemy(config);
-
-  const resolvedAddress = await alchemy.core.resolveName(address);
+  const provider = new ethers.providers.StaticJsonRpcProvider(
+    "https://rpc.ankr.com/eth",
+    1
+  );
+  const resolvedAddress = await provider.resolveName(address);
   return resolvedAddress;
 };
 
