@@ -28,6 +28,7 @@ import AddressInput, { isValidENSAddress } from "../components/AddressInput";
 import AddressCard from "../components/AddressCard";
 import MorphoCard from "../components/MorphoCard";
 import CompoundCard from "../components/CompoundCard";
+import EulerCard from "../components/EulerCard";
 import ProtocolSidebar, { Protocol } from "../components/ProtocolSidebar";
 import Footer from "../components/Footer";
 
@@ -78,6 +79,9 @@ export default function HomePage() {
                 <CompoundCard address={currentAddress} />
               )}
               {selectedProtocol === "spark" && <AddressCard />}
+              {selectedProtocol === "euler" && (
+                <EulerCard address={currentAddress} />
+              )}
             </>
           ) : (
             <SplashSection />
