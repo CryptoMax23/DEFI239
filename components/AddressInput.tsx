@@ -3,10 +3,26 @@ import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { t } from "@lingui/macro";
 
-import { ActionIcon, Group, TextInput, Tooltip } from "@mantine/core";
+import { ActionIcon, Autocomplete, Group, Tooltip } from "@mantine/core";
 import { FaCopy, FaExternalLinkAlt } from "react-icons/fa";
 import { GiDiceSixFacesFive } from "react-icons/gi";
 import { markets, useAaveData } from "../hooks/useAaveData";
+
+const HISTORY_KEY = "defi-address-history";
+const MAX_HISTORY = 8;
+
+const getHistory = (): string[] => {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const saveToHistory = (address: string) => {
+  const updated = [address, ...getHistory().filter((a) => a !== address)].slice(0, MAX_HISTORY);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+};
 
 type Props = {};
 
@@ -36,7 +52,12 @@ const sampleAddresses = [
 const AddressInput = ({}: Props) => {
   const [inputAddress, setInputAddress] = useState("");
   const [showCopied, setShowCopied] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    setHistory(getHistory());
+  }, []);
 
   const { currentAddress, currentMarket } = useAaveData("");
   const market = markets.find((m) => m.id === currentMarket);
@@ -64,6 +85,8 @@ const AddressInput = ({}: Props) => {
   const handleSelectAddress = (address: string) => {
     setInputAddress(address);
     if (ethers.utils.isAddress(address) || isValidENSAddress(address)) {
+      saveToHistory(address);
+      setHistory(getHistory());
       const query = { ...router?.query };
       query.address = address.trim();
       router.push({ pathname: router.pathname, query }, undefined, {
@@ -79,11 +102,16 @@ const AddressInput = ({}: Props) => {
   };
 
   return (
-    <TextInput
+    <Autocomplete
       value={inputAddress || ""}
       size="lg"
       placeholder="0x...1234 or bobloblaw.eth"
-      onChange={(event) => setInputAddress(event.target.value?.trim())}
+      onChange={(value) => setInputAddress(value.trim())}
+      data={history}
+      filter={(value, item) =>
+        value.trim() === "" ||
+        item.value.toLowerCase().includes(value.toLowerCase())
+      }
       inputWrapperOrder={["label", "error", "input", "description"]}
       rightSectionWidth={110}
       rightSection={
@@ -141,6 +169,7 @@ const AddressInput = ({}: Props) => {
       }
     />
   );
+
 };
 
 export default AddressInput;
