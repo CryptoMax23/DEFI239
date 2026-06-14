@@ -5,6 +5,11 @@ const MORPHO_GRAPHQL_URL = "https://blue-api.morpho.org/graphql";
 const CHAINS = [
   { chainId: 1, chainName: "Ethereum" },
   { chainId: 8453, chainName: "Base" },
+  { chainId: 130, chainName: "Unichain" },
+  { chainId: 42161, chainName: "Arbitrum One" },
+  { chainId: 137, chainName: "Polygon" },
+  { chainId: 10, chainName: "OP Mainnet" },
+  { chainId: 480, chainName: "World Chain" },
 ];
 
 const USER_POSITIONS_QUERY = `

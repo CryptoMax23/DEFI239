@@ -26,6 +26,16 @@ import { MorphoPosition } from "../store/morphoDataStore";
 import { getHealthFactorColor } from "../hooks/useAaveData";
 import TokenIcon from "./TokenIcon";
 
+const CHAIN_ICONS: Record<string, string> = {
+  "Ethereum":    "/icons/networks/ethereum.svg",
+  "Base":        "/icons/networks/base.svg",
+  "Unichain":    "/icons/networks/unichain.svg",
+  "Arbitrum One":"/icons/networks/arbitrum.svg",
+  "Polygon":     "/icons/networks/polygon.svg",
+  "OP Mainnet":  "/icons/networks/optimism.svg",
+  "World Chain": "/icons/networks/worldchain.svg",
+};
+
 type Props = {
   address: string;
 };
@@ -71,11 +81,7 @@ export default function MorphoCard({ address }: Props) {
           label={
             <Group spacing={6}>
               <img
-                src={
-                  chainName === "Ethereum"
-                    ? "/icons/networks/ethereum.svg"
-                    : "/icons/networks/base.svg"
-                }
+                src={CHAIN_ICONS[chainName] ?? "/icons/networks/ethereum.svg"}
                 width={16}
                 height={16}
                 alt={chainName}
