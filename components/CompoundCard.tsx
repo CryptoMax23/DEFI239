@@ -58,6 +58,7 @@ export default function CompoundCard({ address }: Props) {
     Ethereum: "/icons/networks/ethereum.svg",
     Base: "/icons/networks/base.svg",
     Arbitrum: "/icons/networks/arbitrum.svg",
+    Optimism: "/icons/networks/optimism.svg",
   };
 
   return (

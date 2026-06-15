@@ -31,6 +31,18 @@ import { getResolvedAddress } from "../resolver";
 
 const allowedMethods = ["POST", "OPTIONS"];
 
+// @aave/contract-helpers calls BigNumber.toNumber() on Spark's accumulated indices
+// which exceed Number.MAX_SAFE_INTEGER. Patch it once to return a float instead of throwing.
+const _bnProto: any = ethers.BigNumber.prototype;
+const _origToNumber = _bnProto.toNumber;
+_bnProto.toNumber = function (this: ethers.BigNumber) {
+  try {
+    return _origToNumber.call(this);
+  } catch {
+    return parseFloat(this.toString());
+  }
+};
+
 const handler = async (_req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (!allowedMethods.includes(_req.method!)) {
@@ -102,23 +114,24 @@ export const getAaveData = async (address: string, market: AaveMarketDataType) =
 
   const user = (await getResolvedAddress(address)) || "0x87cCC67f0c1b67745989542152DD4acff3841CD6";
 
-  const [reserves, userReserves, reserveIncentives, userIncentives] = await Promise.all([
-    poolDataProviderContract.getReservesHumanized({
-      lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
-    }),
-    poolDataProviderContract.getUserReservesHumanized({
-      lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
-      user
-    }),
+  // Sequential to avoid RPC rate limiting (publicnode.com limits parallel eth_calls)
+  const reserves = await poolDataProviderContract.getReservesHumanized({
+    lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
+  });
+  const userReserves = await poolDataProviderContract.getUserReservesHumanized({
+    lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
+    user,
+  });
+  const [reserveIncentives, userIncentives] = await Promise.all([
     incentiveDataProviderContract
       ? incentiveDataProviderContract.getReservesIncentivesDataHumanized({
-          lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER
+          lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
         })
       : Promise.resolve([]),
     incentiveDataProviderContract
       ? incentiveDataProviderContract.getUserReservesIncentivesDataHumanized({
           lendingPoolAddressProvider: market.addresses.LENDING_POOL_ADDRESS_PROVIDER,
-          user
+          user,
         })
       : Promise.resolve([]),
   ]);

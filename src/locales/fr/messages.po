@@ -146,12 +146,13 @@ msgstr "Appliquer"
 msgid "Available to Borrow:"
 msgstr "Disponible à emprunter :"
 
-#: components/CompoundCard.tsx:219
-#: components/MorphoCard.tsx:226
+#: components/CompoundCard.tsx:220
+#: components/EulerCard.tsx:123
+#: components/MorphoCard.tsx:246
 msgid "Borrow"
 msgstr "Emprunter"
 
-#: components/MorphoCard.tsx:241
+#: components/MorphoCard.tsx:261
 msgid "Borrow APY"
 msgstr "APY d'emprunt"
 
@@ -167,16 +168,16 @@ msgstr "Détails de l'emprunt {0}"
 msgid "Borrowed Assets"
 msgstr "Actifs empruntés"
 
-#: pages/index.tsx:126
+#: pages/index.tsx:136
 msgid "Build from Scratch"
 msgstr "Construire de zéro"
 
-#: pages/index.tsx:251
+#: pages/index.tsx:261
 msgid "Close alert"
 msgstr "Fermer l'alerte"
 
-#: components/CompoundCard.tsx:206
-#: components/MorphoCard.tsx:211
+#: components/CompoundCard.tsx:207
+#: components/MorphoCard.tsx:231
 msgid "Collateral"
 msgstr "Collatéral"
 
@@ -193,7 +194,7 @@ msgstr "Informations du contrat"
 msgid "Copy address to clipboard"
 msgstr "Copier l'adresse dans le presse-papiers"
 
-#: pages/index.tsx:118
+#: pages/index.tsx:128
 msgid "Create a new simulated position in any Aave market:"
 msgstr "Créer une nouvelle position simulée sur n'importe quel marché Aave :"
 
@@ -216,7 +217,7 @@ msgstr "Terminé"
 msgid "Experimental Feature"
 msgstr "Fonctionnalité expérimentale"
 
-#: pages/index.tsx:246
+#: pages/index.tsx:256
 msgid "Experimental!"
 msgstr "Expérimental !"
 
@@ -265,27 +266,35 @@ msgstr "Aucune position Aave trouvée."
 msgid "No address found"
 msgstr "Aucune adresse trouvée"
 
+#: components/EulerCard.tsx:175
+msgid "No collateral enabled."
+msgstr ""
+
 #: components/CompoundCard.tsx:48
 msgid "No Compound v3 positions found for this address."
+msgstr ""
+
+#: components/EulerCard.tsx:47
+msgid "No Euler v2 positions found for this address."
 msgstr ""
 
 #: components/AddressCard.tsx:969
 msgid "No Liquidation Scenario Available"
 msgstr "Aucun scénario de liquidation disponible"
 
-#: components/MorphoCard.tsx:51
+#: components/MorphoCard.tsx:61
 msgid "No Morpho positions found for this address."
 msgstr "Aucune position Morpho trouvée pour cette adresse."
 
-#: pages/index.tsx:102
+#: pages/index.tsx:112
 msgid "OR"
 msgstr "OU"
 
-#: pages/index.tsx:94
+#: pages/index.tsx:104
 msgid "Paste an address with an Aave debt position in the box above to visualize how changes to borrow/supplied assets affect the position's health factor and borrowing power."
 msgstr "Collez une adresse avec une position de dette Aave dans le champ ci-dessus pour visualiser comment les changements d'actifs empruntés/fournis affectent le facteur de santé et la capacité d'emprunt."
 
-#: components/MorphoCard.tsx:284
+#: components/MorphoCard.tsx:304
 msgid "Price data unavailable — simulation disabled"
 msgstr "Données de prix indisponibles — simulation désactivée"
 
@@ -302,8 +311,9 @@ msgstr "Questions ou commentaires ? Veuillez <0>rejoindre le Discord !</0>"
 msgid "Remove {assetSymbol}"
 msgstr "Supprimer {assetSymbol}"
 
-#: components/CompoundCard.tsx:194
-#: components/MorphoCard.tsx:199
+#: components/CompoundCard.tsx:195
+#: components/EulerCard.tsx:111
+#: components/MorphoCard.tsx:219
 msgid "Reset"
 msgstr "Réinitialiser"
 
@@ -340,8 +350,8 @@ msgstr "Sélectionnez {0} ({1}) {2} ci-dessous. Après avoir sélectionné une d
 msgid "Select Currency"
 msgstr "Sélectionner une devise"
 
-#: components/CompoundCard.tsx:322
-#: components/MorphoCard.tsx:337
+#: components/CompoundCard.tsx:323
+#: components/MorphoCard.tsx:357
 msgid "Simulate"
 msgstr "Simuler"
 
@@ -353,8 +363,8 @@ msgstr "Certaines requêtes réseau Aave ont échoué. Votre clé API Alchemy n'
 msgid "Something happened, we're not able to load the address debt position data right now. Try again later."
 msgstr "Un problème est survenu, nous ne pouvons pas charger les données de la position pour l'instant. Réessayez plus tard."
 
-#: components/CompoundCard.tsx:232
-#: components/MorphoCard.tsx:251
+#: components/CompoundCard.tsx:233
+#: components/MorphoCard.tsx:271
 msgid "Supplied"
 msgstr "Déposé"
 
@@ -395,7 +405,7 @@ msgstr "Aucune devise ne correspond à la recherche. Réinitialisez la recherche
 msgid "There are no supplied assets for <0/>in the {0} market. Select \"Add Supplied Asset\" to simulate supplied assets for this address."
 msgstr "Il n'y a pas d'actifs fournis pour <0/>dans le marché {0}. Sélectionnez \"Fournir un actif\" pour simuler des actifs fournis pour cette adresse."
 
-#: pages/index.tsx:253
+#: pages/index.tsx:263
 msgid "This DeFi simulator is experimental. Don't make financial decisions based solely on the results of this app."
 msgstr "Ce simulateur DeFi est expérimental. Ne prenez pas de décisions financières basées uniquement sur les résultats de cette application."
 
@@ -413,7 +423,7 @@ msgid "Use {assetSymbol} as collateral"
 msgstr "Utiliser {assetSymbol} comme garantie"
 
 #: components/AddressInput.tsx:119
-#: pages/index.tsx:230
+#: pages/index.tsx:240
 msgid "Use Random Address"
 msgstr "Utiliser une adresse aléatoire"
 
@@ -425,6 +435,6 @@ msgstr "Capacité d'emprunt utilisée :"
 msgid "View address on {0}"
 msgstr "Voir l'adresse sur {0}"
 
-#: pages/index.tsx:106
+#: pages/index.tsx:116
 msgid "Want to go for a quick spin?"
 msgstr "Vous voulez faire un tour rapide ?"

@@ -146,12 +146,13 @@ msgstr ""
 msgid "Available to Borrow:"
 msgstr ""
 
-#: components/CompoundCard.tsx:219
-#: components/MorphoCard.tsx:226
+#: components/CompoundCard.tsx:220
+#: components/EulerCard.tsx:123
+#: components/MorphoCard.tsx:246
 msgid "Borrow"
 msgstr ""
 
-#: components/MorphoCard.tsx:241
+#: components/MorphoCard.tsx:261
 msgid "Borrow APY"
 msgstr ""
 
@@ -167,16 +168,16 @@ msgstr ""
 msgid "Borrowed Assets"
 msgstr ""
 
-#: pages/index.tsx:126
+#: pages/index.tsx:136
 msgid "Build from Scratch"
 msgstr ""
 
-#: pages/index.tsx:251
+#: pages/index.tsx:261
 msgid "Close alert"
 msgstr ""
 
-#: components/CompoundCard.tsx:206
-#: components/MorphoCard.tsx:211
+#: components/CompoundCard.tsx:207
+#: components/MorphoCard.tsx:231
 msgid "Collateral"
 msgstr ""
 
@@ -193,7 +194,7 @@ msgstr ""
 msgid "Copy address to clipboard"
 msgstr ""
 
-#: pages/index.tsx:118
+#: pages/index.tsx:128
 msgid "Create a new simulated position in any Aave market:"
 msgstr ""
 
@@ -216,7 +217,7 @@ msgstr ""
 msgid "Experimental Feature"
 msgstr ""
 
-#: pages/index.tsx:246
+#: pages/index.tsx:256
 msgid "Experimental!"
 msgstr ""
 
@@ -265,27 +266,35 @@ msgstr ""
 msgid "No address found"
 msgstr ""
 
+#: components/EulerCard.tsx:175
+msgid "No collateral enabled."
+msgstr ""
+
 #: components/CompoundCard.tsx:48
 msgid "No Compound v3 positions found for this address."
+msgstr ""
+
+#: components/EulerCard.tsx:47
+msgid "No Euler v2 positions found for this address."
 msgstr ""
 
 #: components/AddressCard.tsx:969
 msgid "No Liquidation Scenario Available"
 msgstr ""
 
-#: components/MorphoCard.tsx:51
+#: components/MorphoCard.tsx:61
 msgid "No Morpho positions found for this address."
 msgstr ""
 
-#: pages/index.tsx:102
+#: pages/index.tsx:112
 msgid "OR"
 msgstr ""
 
-#: pages/index.tsx:94
+#: pages/index.tsx:104
 msgid "Paste an address with an Aave debt position in the box above to visualize how changes to borrow/supplied assets affect the position's health factor and borrowing power."
 msgstr ""
 
-#: components/MorphoCard.tsx:284
+#: components/MorphoCard.tsx:304
 msgid "Price data unavailable — simulation disabled"
 msgstr ""
 
@@ -302,8 +311,9 @@ msgstr ""
 msgid "Remove {assetSymbol}"
 msgstr ""
 
-#: components/CompoundCard.tsx:194
-#: components/MorphoCard.tsx:199
+#: components/CompoundCard.tsx:195
+#: components/EulerCard.tsx:111
+#: components/MorphoCard.tsx:219
 msgid "Reset"
 msgstr ""
 
@@ -340,8 +350,8 @@ msgstr ""
 msgid "Select Currency"
 msgstr ""
 
-#: components/CompoundCard.tsx:322
-#: components/MorphoCard.tsx:337
+#: components/CompoundCard.tsx:323
+#: components/MorphoCard.tsx:357
 msgid "Simulate"
 msgstr ""
 
@@ -353,8 +363,8 @@ msgstr ""
 msgid "Something happened, we're not able to load the address debt position data right now. Try again later."
 msgstr ""
 
-#: components/CompoundCard.tsx:232
-#: components/MorphoCard.tsx:251
+#: components/CompoundCard.tsx:233
+#: components/MorphoCard.tsx:271
 msgid "Supplied"
 msgstr ""
 
@@ -395,7 +405,7 @@ msgstr ""
 msgid "There are no supplied assets for <0/>in the {0} market. Select \"Add Supplied Asset\" to simulate supplied assets for this address."
 msgstr ""
 
-#: pages/index.tsx:253
+#: pages/index.tsx:263
 msgid "This DeFi simulator is experimental. Don't make financial decisions based solely on the results of this app."
 msgstr ""
 
@@ -413,7 +423,7 @@ msgid "Use {assetSymbol} as collateral"
 msgstr ""
 
 #: components/AddressInput.tsx:119
-#: pages/index.tsx:230
+#: pages/index.tsx:240
 msgid "Use Random Address"
 msgstr ""
 
@@ -425,6 +435,6 @@ msgstr ""
 msgid "View address on {0}"
 msgstr ""
 
-#: pages/index.tsx:106
+#: pages/index.tsx:116
 msgid "Want to go for a quick spin?"
 msgstr ""

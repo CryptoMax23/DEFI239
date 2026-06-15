@@ -9,25 +9,32 @@ class CloudflareRpcProvider extends ethers.providers.StaticJsonRpcProvider {
   }
 
   async send(method: string, params: Array<unknown>): Promise<unknown> {
-    const response = await fetch(this._rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method, params }),
-    });
-    if (!response.ok) {
-      throw new Error(`RPC HTTP ${response.status} for ${method} on ${this._rpcUrl}`);
+    const MAX_RETRIES = 3;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      if (attempt > 0) {
+        await new Promise((r) => setTimeout(r, attempt * 600));
+      }
+      const response = await fetch(this._rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method, params }),
+      });
+      if (response.status === 429 && attempt < MAX_RETRIES - 1) continue;
+      if (!response.ok) {
+        throw new Error(`RPC HTTP ${response.status} for ${method} on ${this._rpcUrl}`);
+      }
+      const json = (await response.json()) as {
+        result?: unknown;
+        error?: { message: string; code: number; data?: unknown };
+      };
+      if (json.error) {
+        const err: any = new Error(json.error.message);
+        err.code = json.error.code;
+        err.data = json.error.data;
+        throw err;
+      }
+      return json.result;
     }
-    const json = (await response.json()) as {
-      result?: unknown;
-      error?: { message: string; code: number; data?: unknown };
-    };
-    if (json.error) {
-      const err: any = new Error(json.error.message);
-      err.code = json.error.code;
-      err.data = json.error.data;
-      throw err;
-    }
-    return json.result;
   }
 }
 
