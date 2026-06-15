@@ -380,6 +380,51 @@ async function getEthPrice(provider: ethers.providers.Provider): Promise<number>
   }
 }
 
+// ── eth_call with AbortController timeout ────────────────────────────────────
+// ethers.js has no built-in timeout. We encode/call/decode manually so we can
+// pass an AbortSignal and actually cancel the fetch when the deadline hits.
+
+async function callWithTimeout(
+  rpcUrl: string,
+  contractAddress: string,
+  abi: any[],
+  funcName: string,
+  args: any[],
+  timeoutMs: number
+): Promise<any> {
+  const iface = new ethers.utils.Interface(abi);
+  const callData = iface.encodeFunctionData(funcName, args);
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [{ to: contractAddress, data: callData }, "latest"],
+      }),
+      signal: ctrl.signal,
+    });
+
+    clearTimeout(timer);
+
+    if (!response.ok) return null;
+    const json = await response.json() as { result?: string; error?: any };
+    if (json.error || !json.result || json.result === "0x") return null;
+
+    const decoded = iface.decodeFunctionResult(funcName, json.result);
+    return decoded;
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
 // ── Per-chain fetcher ─────────────────────────────────────────────────────────
 
 async function fetchChainPositions(
@@ -390,15 +435,10 @@ async function fetchChainPositions(
 ) {
   const provider        = createProvider(rpc, chainId);
   const mc3             = new ethers.Contract(MULTICALL3, MC3_ABI, provider);
-  const vaultResolver   = new ethers.Contract(FLUID_VAULT_RESOLVER, VAULT_RESOLVER_ABI, provider);
   const lendingResolver = new ethers.Contract(FLUID_LENDING_RESOLVER, LENDING_RESOLVER_ABI, provider);
 
-  // 20-second timeout on the vault resolver — the response can be very large
-  // for wallets with many positions (>30) and the Cloudflare Worker has a 30s limit.
-  const vaultTimeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 20000));
-
   const [vaultResult, lendingResult, ethPriceUsd] = await Promise.all([
-    Promise.race([vaultResolver.positionsByUser(address), vaultTimeout]).catch(() => null),
+    callWithTimeout(rpc, FLUID_VAULT_RESOLVER, VAULT_RESOLVER_ABI, "positionsByUser", [address], 12000),
     lendingResolver.getUserPositions(address).catch(() => []),
     chainId === 1 ? getEthPrice(provider) : Promise.resolve(0),
   ]);
