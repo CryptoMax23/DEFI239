@@ -393,8 +393,12 @@ async function fetchChainPositions(
   const vaultResolver   = new ethers.Contract(FLUID_VAULT_RESOLVER, VAULT_RESOLVER_ABI, provider);
   const lendingResolver = new ethers.Contract(FLUID_LENDING_RESOLVER, LENDING_RESOLVER_ABI, provider);
 
+  // 20-second timeout on the vault resolver — the response can be very large
+  // for wallets with many positions (>30) and the Cloudflare Worker has a 30s limit.
+  const vaultTimeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 20000));
+
   const [vaultResult, lendingResult, ethPriceUsd] = await Promise.all([
-    vaultResolver.positionsByUser(address).catch(() => null),
+    Promise.race([vaultResolver.positionsByUser(address), vaultTimeout]).catch(() => null),
     lendingResolver.getUserPositions(address).catch(() => []),
     chainId === 1 ? getEthPrice(provider) : Promise.resolve(0),
   ]);
