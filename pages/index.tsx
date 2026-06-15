@@ -29,6 +29,7 @@ import AddressCard from "../components/AddressCard";
 import MorphoCard from "../components/MorphoCard";
 import CompoundCard from "../components/CompoundCard";
 import EulerCard from "../components/EulerCard";
+import FluidCard from "../components/FluidCard";
 import ProtocolSidebar, { Protocol } from "../components/ProtocolSidebar";
 import Footer from "../components/Footer";
 
@@ -81,6 +82,9 @@ export default function HomePage() {
               {selectedProtocol === "spark" && <AddressCard />}
               {selectedProtocol === "euler" && (
                 <EulerCard address={currentAddress} />
+              )}
+              {selectedProtocol === "fluid" && (
+                <FluidCard address={currentAddress} />
               )}
             </>
           ) : (

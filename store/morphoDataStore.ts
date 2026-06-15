@@ -12,6 +12,8 @@ export interface MorphoPosition {
   marketId: string;
   chainId: number;
   chainName: string;
+  positionType: "market" | "vault";
+  vaultName?: string;
   lltv: number;
   collateralAsset: MorphoAsset | null;
   loanAsset: MorphoAsset;

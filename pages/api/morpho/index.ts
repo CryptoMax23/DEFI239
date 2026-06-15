@@ -48,6 +48,26 @@ const USER_POSITIONS_QUERY = `
           }
         }
       }
+      vaultPositions {
+        state {
+          assets
+          assetsUsd
+        }
+        vault {
+          name
+          address
+          state {
+            apy
+          }
+          asset {
+            address
+            symbol
+            name
+            decimals
+            price { usd }
+          }
+        }
+      }
     }
   }
 `;
@@ -73,8 +93,9 @@ async function fetchChainPositions(address: string, chainId: number, chainName: 
   }
 
   const marketPositions = data.data?.userByAddress?.marketPositions || [];
+  const vaultPositions = data.data?.userByAddress?.vaultPositions || [];
 
-  return marketPositions
+  const processedMarket = marketPositions
     .filter((pos: any) => {
       const state = pos.state;
       if (!state) return false;
@@ -124,6 +145,7 @@ async function fetchChainPositions(address: string, chainId: number, chainName: 
         marketId: market.marketId,
         chainId,
         chainName,
+        positionType: "market" as const,
         lltv,
         collateralAsset: market.collateralAsset
           ? {
@@ -152,6 +174,50 @@ async function fetchChainPositions(address: string, chainId: number, chainName: 
         healthFactor,
       };
     });
+
+  const processedVault = vaultPositions
+    .filter((vp: any) => parseFloat(vp.state?.assets?.toString() || "0") > 0)
+    .map((vp: any) => {
+      const vault = vp.vault;
+      const state = vp.state;
+      const decimals = vault.asset?.decimals ?? 18;
+      const priceUsd: number | null = vault.asset?.price?.usd ?? null;
+      const supplyTokens = parseFloat(state.assets?.toString() || "0") / Math.pow(10, decimals);
+      const supplyUsd: number | null =
+        state.assetsUsd !== null && state.assetsUsd !== undefined
+          ? state.assetsUsd
+          : priceUsd !== null
+          ? supplyTokens * priceUsd
+          : null;
+
+      return {
+        marketId: vault.address,
+        chainId,
+        chainName,
+        positionType: "vault" as const,
+        vaultName: vault.name,
+        lltv: 0,
+        collateralAsset: null,
+        loanAsset: {
+          address: vault.asset.address,
+          symbol: vault.asset.symbol,
+          name: vault.asset.name,
+          decimals,
+          priceUsd,
+        },
+        supplyApy: vault.state?.apy ?? 0,
+        borrowApy: 0,
+        collateralTokens: 0,
+        collateralUsd: null,
+        borrowTokens: 0,
+        borrowUsd: null,
+        supplyTokens,
+        supplyUsd,
+        healthFactor: null,
+      };
+    });
+
+  return [...processedMarket, ...processedVault];
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

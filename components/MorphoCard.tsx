@@ -156,7 +156,8 @@ type PositionCardProps = {
 };
 
 function PositionCard({ position, onUpdate, onReset }: PositionCardProps) {
-  const isBorrowPosition = position.borrowTokens > 0;
+  const isVault = position.positionType === "vault";
+  const isBorrowPosition = !isVault && position.borrowTokens > 0;
   const isSupplyPosition = !isBorrowPosition && position.supplyTokens > 0;
 
   const collSymbol = position.collateralAsset?.symbol ?? "—";
@@ -166,10 +167,12 @@ function PositionCard({ position, onUpdate, onReset }: PositionCardProps) {
   const hfColor = getHealthFactorColor(isFinite(hf) ? hf : 999);
 
   const hasChanged =
-    Math.abs(position.workingCollateralTokens - position.collateralTokens) > 1e-10 ||
-    Math.abs(position.workingBorrowTokens - position.borrowTokens) > 1e-10 ||
-    Math.abs(position.workingCollateralPriceUsd - (position.collateralAsset?.priceUsd ?? 0)) > 1e-10 ||
-    Math.abs(position.workingLoanPriceUsd - (position.loanAsset?.priceUsd ?? 0)) > 1e-10;
+    !isVault && (
+      Math.abs(position.workingCollateralTokens - position.collateralTokens) > 1e-10 ||
+      Math.abs(position.workingBorrowTokens - position.borrowTokens) > 1e-10 ||
+      Math.abs(position.workingCollateralPriceUsd - (position.collateralAsset?.priceUsd ?? 0)) > 1e-10 ||
+      Math.abs(position.workingLoanPriceUsd - (position.loanAsset?.priceUsd ?? 0)) > 1e-10
+    );
 
   return (
     <Paper
@@ -183,16 +186,25 @@ function PositionCard({ position, onUpdate, onReset }: PositionCardProps) {
       {/* Header */}
       <Flex justify="space-between" align="center" mb={12}>
         <Group spacing={8}>
-          {isBorrowPosition && position.collateralAsset && (
+          <TokenIcon symbol={loanSymbol} size={20} />
+          {!isVault && isBorrowPosition && position.collateralAsset && (
             <TokenIcon symbol={collSymbol} size={20} />
           )}
-          <TokenIcon symbol={loanSymbol} size={20} />
           <Title order={5} style={{ lineHeight: 1 }}>
-            {isBorrowPosition ? `${collSymbol} / ${loanSymbol}` : loanSymbol}
+            {isVault
+              ? position.vaultName ?? loanSymbol
+              : isBorrowPosition
+              ? `${collSymbol} / ${loanSymbol}`
+              : loanSymbol}
           </Title>
           {isBorrowPosition && (
             <Badge size="xs" color="gray" variant="outline">
               LLTV {formatNumber(position.lltv * 100, 0)}%
+            </Badge>
+          )}
+          {isVault && (
+            <Badge size="xs" color="violet" variant="outline">
+              MetaMorpho
             </Badge>
           )}
         </Group>
@@ -201,9 +213,9 @@ function PositionCard({ position, onUpdate, onReset }: PositionCardProps) {
           {isBorrowPosition && (
             <HFBadge hf={hf} color={hfColor} />
           )}
-          {isSupplyPosition && (
+          {(isSupplyPosition || isVault) && (
             <Badge size="sm" color="teal" variant="light">
-              Supply {formatNumber(position.supplyApy * 100, 2)}% APY
+              {formatNumber(position.supplyApy * 100, 2)}% APY
             </Badge>
           )}
           {hasChanged && (
@@ -265,7 +277,7 @@ function PositionCard({ position, onUpdate, onReset }: PositionCardProps) {
             </Text>
           </Box>
         )}
-        {isSupplyPosition && (
+        {(isSupplyPosition || isVault) && (
           <Box>
             <Text size="xs" color="dimmed">
               <Trans>Supplied</Trans>
