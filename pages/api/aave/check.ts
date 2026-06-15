@@ -15,6 +15,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const market = markets.find((m) => m.id === marketId);
     if (!market) return res.status(400).json({ enabled: false, message: "Unknown market" });
 
+    // Public RPCs (publicnode.com) don't need API-key validation.
+    // Probing them in parallel for every market triggers rate limiting.
+    if (market.api.includes("publicnode.com")) {
+      return res.status(200).json({ enabled: true });
+    }
+
     try {
       const response = await fetch(market.api, {
         method: "POST",
